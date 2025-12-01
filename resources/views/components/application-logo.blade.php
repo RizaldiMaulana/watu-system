@@ -1,0 +1,1 @@
+<img src="{{ asset('images/LOGO Produk.png') }}" {{ $attributes }} alt="Watu Coffee Logo">
