@@ -10,6 +10,38 @@
 
     <div class="max-w-7xl mx-auto space-y-6">
         
+        <!-- Filter Date -->
+        <!-- Filter Date -->
+        <div class="bg-white shadow-sm sm:rounded-lg p-4 flex justify-between items-center">
+            <div>
+                <h3 class="font-bold text-gray-700">Periode Pelaporan (Cyclical)</h3>
+                <p class="text-xs text-gray-500">{{ $startDate ? \Carbon\Carbon::parse($startDate)->translatedFormat('d M Y') : '7 Hari Terakhir' }} - {{ $endDate ? \Carbon\Carbon::parse($endDate)->translatedFormat('d M Y') : 'Hari Ini' }}</p>
+            </div>
+            <form method="GET" class="flex flex-wrap gap-2 items-center">
+                <div class="flex gap-1 mr-2">
+                     <!-- Bulanan (Monthly) -->
+                     <a href="{{ request()->fullUrlWithQuery(['start_date' => date('Y-m-01'), 'end_date' => date('Y-m-t')]) }}" class="px-3 py-1 text-xs font-bold bg-blue-50 text-blue-700 hover:bg-blue-100 rounded border border-blue-200" title="Laporan & Penyesuaian Internal">Bulanan</a>
+                     
+                     <!-- Kuartalan (Quarterly) -->
+                     @php
+                        $now = \Carbon\Carbon::now();
+                        $startQuarter = $now->copy()->startOfQuarter()->toDateString();
+                        $endQuarter = $now->copy()->endOfQuarter()->toDateString();
+                     @endphp
+                     <a href="{{ request()->fullUrlWithQuery(['start_date' => $startQuarter, 'end_date' => $endQuarter]) }}" class="px-3 py-1 text-xs font-bold bg-yellow-50 text-yellow-700 hover:bg-yellow-100 rounded border border-yellow-200" title="Laporan Bursa / Perusahaan Besar">Kuartalan</a>
+
+                     <!-- Tahunan (Annually) -->
+                     <a href="{{ request()->fullUrlWithQuery(['start_date' => date('Y-01-01'), 'end_date' => date('Y-12-31')]) }}" class="px-3 py-1 text-xs font-bold bg-green-50 text-green-700 hover:bg-green-100 rounded border border-green-200" title="Tahun Fiskal & Pajak (Closing)">Tahunan</a>
+                </div>
+                <span class="text-gray-300">|</span>
+                <input type="date" name="start_date" value="{{ $startDate }}" class="text-sm rounded-md border-gray-300">
+                <span class="self-center">-</span>
+                <input type="date" name="end_date" value="{{ $endDate }}" class="text-sm rounded-md border-gray-300">
+                <button type="submit" class="bg-[#5f674d] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#4a503b]">Filter</button>
+                <a href="{{ route('reports.index') }}" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-bold hover:bg-gray-300">Reset</a>
+            </form>
+        </div>
+
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex items-center gap-4 relative overflow-hidden">
                 <div class="absolute right-0 top-0 p-4 opacity-10">

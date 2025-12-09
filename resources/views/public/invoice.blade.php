@@ -152,7 +152,7 @@
                 <button onclick="window.print()" class="btn btn-watu-outline me-2">
                     <i class="fa fa-print"></i> Cetak / Simpan PDF
                 </button>
-                <a href="{{ route('home') }}" class="btn btn-watu-primary">
+                <a href="{{ route('order') }}" class="btn btn-watu-primary">
                     Kembali ke Menu
                 </a>
             </div>

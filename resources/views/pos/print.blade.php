@@ -18,6 +18,7 @@
 <body onload="window.print()">
     
     <div class="text-center">
+        <img src="{{ asset('images/LOGO Produk.png') }}" style="max-width: 20mm; margin-bottom: 5px;">
         <div class="bold" style="font-size: 14px;">WATU COFFEE</div>
         Jl. Srikandi Raya No. 1, Lerep<br>
         Kab. Semarang

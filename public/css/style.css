@@ -1,13 +1,161 @@
-/* --- MODERN WATU THEME --- */
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;500;600&display=swap');
+/* ============================================
+   WATU COFFEE - MODERN PREMIUM THEME
+   ============================================ */
 
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;800&family=Poppins:wght@300;400;500;600;700&display=swap');
 
+/* ============================================
+   1. CSS CUSTOM PROPERTIES & ROOT VARIABLES
+   ============================================ */
 :root {
+    /* Brand Colors */
     --color-olive: #5f674d;
     --color-olive-dark: #424836;
+    --color-olive-light: #7a8262;
     --color-cream: #F9F7F2;
     --color-dark: #2b2623;
     --color-gray: #6c757d;
+    --color-accent: #d4a056;
+
+    /* Gradient Colors */
+    --gradient-olive: linear-gradient(135deg, #5f674d 0%, #7a8262 100%);
+    --gradient-gold: linear-gradient(135deg, #d4a056 0%, #c29048 100%);
+    --gradient-cream: linear-gradient(135deg, #F9F7F2 0%, #eaddcf 100%);
+
+    /* Shadows */
+    --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.15);
+    --shadow-glow: 0 0 20px rgba(95, 103, 77, 0.3);
+
+    /* Transitions */
+    --transition-fast: 0.2s ease;
+    --transition-base: 0.3s ease;
+    --transition-slow: 0.5s ease;
+    --transition-bouncy: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* ============================================
+   2. MODERN KEYFRAME ANIMATIONS
+   ============================================ */
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-50px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -1000px 0;
+    }
+
+    100% {
+        background-position: 1000px 0;
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes rotateFloat {
+
+    0%,
+    100% {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+
+    50% {
+        transform: translate(-50%, -50%) rotate(5deg);
+    }
+}
+
+/* ============================================
+   3. BASE STYLES & GLOBAL ENHANCEMENTS
+   ============================================ */
+
+* {
+    -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
+}
+
+html {
+    position: relative;
+    scroll-behavior: smooth;
 }
 
 body {
@@ -16,8 +164,11 @@ body {
     background-color: var(--color-cream);
     overflow-x: hidden;
     position: relative;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
+/* Animated Background Pattern */
 body::before {
     content: "";
     position: fixed;
@@ -28,22 +179,46 @@ body::before {
     background-image: url('../images/Bg.png');
     background-repeat: repeat;
     background-size: 400px;
-    
-    
-    opacity: 0.08; /* 0.05 sampai 0.15 */
-    
+    opacity: 0.08;
     z-index: -1;
     pointer-events: none;
     mix-blend-mode: multiply;
+    animation: fadeIn 0.8s ease;
 }
+
+/* ============================================
+   4. TYPOGRAPHY ENHANCEMENTS
+   ============================================ */
 
 .font-serif {
     font-family: 'Playfair Display', serif;
 }
 
-.text-olive { color: var(--color-olive) !important; }
+.text-olive {
+    color: var(--color-olive) !important;
+}
 
-/* --- 1. HEADER / NAVBAR (SEAMLESS) --- */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    animation: fadeInUp 0.6s ease;
+}
+
+/* Gradient Text Effect */
+.gradient-text {
+    background: var(--gradient-olive);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ============================================
+   5. HEADER / NAVBAR WITH SCROLL EFFECTS
+   ============================================ */
+
 .header {
     position: absolute;
     top: 0;
@@ -52,19 +227,38 @@ body::before {
     z-index: 1000;
     padding: 15px 0;
     background: transparent;
+    transition: all var(--transition-base);
 }
 
-/* Logo Styling */
+.header.scrolled {
+    background: rgba(249, 247, 242, 0.95);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-sm);
+    padding: 10px 0;
+}
+
+/* Logo Styling with Animation */
 .navbar-brand {
     display: flex;
     align-items: center;
     gap: 15px;
+    transition: transform var(--transition-base);
+}
+
+.navbar-brand:hover {
+    transform: scale(1.02);
 }
 
 .navbar-brand img {
     width: 60px;
     height: auto;
     margin-right: 12px;
+    transition: transform var(--transition-base);
+    animation: fadeIn 0.5s ease;
+}
+
+.navbar-brand:hover img {
+    transform: rotate(-5deg) scale(1.1);
 }
 
 .navbar-brand span {
@@ -75,9 +269,14 @@ body::before {
     line-height: 1.2;
     text-transform: capitalize;
     letter-spacing: 0.5px;
+    transition: color var(--transition-base);
 }
 
-/* Menu Links (Desktop) */
+.navbar-brand:hover span {
+    color: var(--color-olive);
+}
+
+/* Modern Menu Links */
 .nav-link {
     color: var(--color-dark) !important;
     font-weight: 700;
@@ -85,100 +284,252 @@ body::before {
     text-transform: uppercase;
     letter-spacing: 1.5px;
     padding: 12px 25px !important;
-    transition: 0.3s;
+    position: relative;
+    transition: all var(--transition-base);
+}
+
+.nav-link::before {
+    content: '';
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: var(--gradient-olive);
+    transform: translateX(-50%);
+    transition: width var(--transition-base);
+}
+
+.nav-link:hover::before,
+.nav-link.active::before {
+    width: 60%;
 }
 
 .nav-link:hover {
     color: var(--color-olive) !important;
+    transform: translateY(-2px);
 }
 
-/* Toggler (Hamburger) Styling */
+/* Hamburger Menu Animation */
 .navbar-toggler {
     outline: none !important;
     padding: 5px;
+    border: 2px solid var(--color-dark) !important;
+    border-radius: 8px;
+    transition: all var(--transition-base);
 }
 
-/* MOBILE Menu */
-@media (max-width: 991px) {
-    .header {
-        background: var(--color-cream);
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    }
-    .navbar-brand span {
-        font-size: 22px;
-    }
-    .navbar-collapse {
-        background-color: #ffffff;
-        margin-top: 15px;
-        border-radius: 15px;
-        padding: 20px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    }
-    .nav-link {
-        font-size: 16px; /* Menu di HP juga besar */
-        padding: 15px 0 !important;
-        border-bottom: 1px solid #f0f0f0;
-    }
-
-    .nav-link:last-child {
-        border-bottom: none;
-    }
-}
-
-/* Toggler Button */
-.navbar-toggler {
-    border-color: var(--color-dark) !important;
+.navbar-toggler:hover {
+    border-color: var(--color-olive) !important;
+    transform: rotate(90deg);
 }
 
 .navbar-toggler-icon {
     background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(43, 38, 35, 1)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E") !important;
 }
 
-/* --- 2. HERO SECTION (BANNER) --- */
+/* ============================================
+   6. HERO SECTION WITH ANIMATIONS
+   ============================================ */
+
 .hero-section {
     min-height: 100vh;
     background-color: var(--color-cream);
     padding-top: 80px;
     position: relative;
+    display: flex;
+    align-items: center;
+    animation: fadeIn 0.8s ease;
 }
 
-.hero-img {
-    border-radius: 20px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-    max-height: 550px;
-    object-fit: cover;
-    z-index: 2;
+.hero-text {
+    animation: slideInLeft 0.8s ease;
 }
 
-/* Dekorasi Lingkaran di belakang gambar */
-.blob-bg {
-    position: absolute;
-    width: 500px;
-    height: 500px;
-    background-color: #e8e4da;
-    border-radius: 50%;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 1;
+.hero-text h5 {
+    animation: fadeInUp 0.6s ease 0.2s both;
 }
 
-/* --- 3. TOMBOL --- */
+.hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 4.5rem;
+    /* Larger */
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -1px;
+    /* Tighter tracking for elegance */
+    color: var(--color-dark);
+}
+
+.hero-sub {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 300;
+    /* Thinner */
+    letter-spacing: 0.5px;
+    line-height: 1.8;
+}
+
+.hero-image-frame {
+    border-top-right-radius: 150px;
+    border-bottom-left-radius: 40px;
+    border-top-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 20px 20px 0px rgba(95, 103, 77, 0.1);
+    /* Soft offset accent */
+}
+
+.about-image-frame {
+    border-radius: 40px 120px 40px 120px;
+    /* Organic elliptical leaf shape */
+    overflow: hidden;
+    position: relative;
+    box-shadow: -15px 15px 0px rgba(212, 160, 86, 0.15);
+    /* Gold accent offset */
+    transition: all var(--transition-slow);
+}
+
+.about-image-frame:hover {
+    border-radius: 120px 40px 120px 40px;
+    /* Morph on hover */
+    transform: translateY(-5px);
+}
+
+/* Updated Matte Button */
 .btn-watu-primary {
-    background-color: var(--color-olive);
+    background: var(--color-olive);
+    /* Flat, no gradient */
     color: #fff;
-    padding: 15px 40px;
-    border-radius: 50px; /* Pill shape */
+    padding: 18px 45px;
+    /* Larger click area */
+    border-radius: 0px 25px 0px 25px;
+    /* Unique shape */
     font-weight: 500;
-    letter-spacing: 1px;
-    border: 2px solid var(--color-olive);
-    transition: 0.3s;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-size: 14px;
+    border: none;
+    position: relative;
+    overflow: hidden;
+    transition: all var(--transition-base);
+    box-shadow: 0 10px 20px -5px rgba(95, 103, 77, 0.3);
 }
 
 .btn-watu-primary:hover {
-    background-color: var(--color-olive-dark);
-    border-color: var(--color-olive-dark);
+    background: var(--color-olive-dark);
+    transform: translateY(-3px);
+    box-shadow: 0 15px 25px -5px rgba(95, 103, 77, 0.4);
     color: #fff;
+}
+
+/* Mobile Responsiveness for Hero */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 3rem;
+        /* Smaller on mobile */
+    }
+
+    .hero-image-frame {
+        border-radius: 40px;
+        /* Simpler shape on mobile */
+        margin-top: 30px;
+    }
+
+    .about-image-frame {
+        border-radius: 40px;
+        margin-bottom: 30px;
+    }
+}
+
+/* ============================================
+   BREWSCAPE INSPIRED MENU CARDS
+   ============================================ */
+.menu-card-brewscape {
+    background: #fff;
+    border: 3px solid var(--color-olive);
+    /* Bold green border */
+    border-radius: 25px;
+    /* Soft rounded corners */
+    padding: 25px;
+    transition: all var(--transition-base);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.menu-card-brewscape:hover {
+    box-shadow: 10px 10px 0px rgba(95, 103, 77, 0.2);
+    /* Offset shadow on hover */
+    transform: translateY(-5px);
+}
+
+.menu-card-img-container {
+    width: 100%;
+    height: 220px;
+    margin-bottom: 20px;
+    border-radius: 15px;
+    overflow: hidden;
+    background: #f8f9fa;
+    position: relative;
+}
+
+.menu-card-img-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    /* Show full product nicely */
+    transition: transform 0.5s ease;
+}
+
+.menu-card-brewscape:hover img {
+    transform: scale(1.1) rotate(2deg);
+}
+
+.menu-card-title {
+    font-family: 'Playfair Display', serif;
+    font-weight: 800;
+    font-size: 1.25rem;
+    color: var(--color-dark);
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+.menu-card-price {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    color: var(--color-olive);
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+}
+
+.btn-add-brewscape {
+    background: var(--color-olive);
+    color: white;
+    width: 100%;
+    padding: 12px;
+    border-radius: 50px;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn-add-brewscape:hover {
+    background: var(--color-olive-dark);
+    color: white;
+    transform: scale(1.02);
+}
+
+.btn-watu-primary:active {
+    transform: translateY(-1px) scale(1.02);
 }
 
 .btn-watu-outline {
@@ -186,38 +537,96 @@ body::before {
     color: var(--color-olive);
     padding: 15px 40px;
     border-radius: 50px;
-    font-weight: 500;
+    font-weight: 600;
     letter-spacing: 1px;
     border: 2px solid var(--color-olive);
-    transition: 0.3s;
+    transition: all var(--transition-base);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-watu-outline::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 100%;
+    background: var(--gradient-olive);
+    transition: width var(--transition-base);
+    z-index: -1;
+}
+
+.btn-watu-outline:hover::before {
+    width: 100%;
 }
 
 .btn-watu-outline:hover {
-    background-color: var(--color-olive);
+    color: #fff;
+    border-color: var(--color-olive-dark);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+}
+
+.btn-watu-gold {
+    background: var(--gradient-gold);
+    color: #fff;
+    border: none;
+    font-weight: bold;
+    padding: 12px 30px;
+    border-radius: 50px;
+    transition: all var(--transition-base);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-watu-gold:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: var(--shadow-xl);
     color: #fff;
 }
 
-/* --- 4. SECTIONS LAIN --- */
+/* ============================================
+   8. SECTION STYLES
+   ============================================ */
+
 .section-padding {
     padding: 100px 0;
+    animation: fadeIn 0.8s ease;
 }
 
-.bg-white {
-    background-color: #ffffff !important;
+/* About Section Images */
+.arca-illustration {
+    transition: transform var(--transition-slow), filter var(--transition-slow);
+    animation: fadeInUp 0.8s ease;
 }
 
-/* ----- FORM CONTAINER -------- */
+.arca-illustration:hover {
+    transform: scale(1.05) rotate(-2deg);
+    filter: brightness(1.1) contrast(105%);
+}
+
+/* ============================================
+   9. FORM STYLES WITH GLASSMORPHISM
+   ============================================ */
+
 .form-card {
-    background: #ffffffd9;
-    backdrop-filter: blur(4px);
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
     padding: 30px;
-    border-radius: 18px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-    border: 1px solid #e6e6e6;
+    border-radius: 20px;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    transition: all var(--transition-base);
+    animation: scaleIn 0.5s ease;
 }
 
-/* Judul */
-.form-card h4, .form-card h5 {
+.form-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-xl);
+}
+
+.form-card h4,
+.form-card h5 {
     color: var(--color-olive-dark);
     font-weight: 700;
 }
@@ -225,33 +634,864 @@ body::before {
 label {
     font-weight: 600;
     color: var(--color-dark);
+    transition: color var(--transition-fast);
 }
 
-/* Input & Select */
-.form-control, .form-select {
+/* Modern Input Fields */
+.form-control,
+.form-select {
     border-radius: 12px !important;
-    border: 1px solid #d0d0d0;
-    padding: 10px 14px;
+    border: 2px solid #e0e0e0;
+    padding: 12px 16px;
+    transition: all var(--transition-base);
+    background: rgba(255, 255, 255, 0.9);
 }
 
 .form-control:focus,
 .form-select:focus {
     border-color: var(--color-olive);
-    box-shadow: 0 0 0 0.2rem rgba(95, 103, 77, 0.25);
+    box-shadow: 0 0 0 4px rgba(95, 103, 77, 0.1);
+    transform: translateY(-2px);
+    background: #fff;
 }
 
-/* Card pemilihan pembayaran */
+.form-control:hover,
+.form-select:hover {
+    border-color: var(--color-olive-light);
+}
+
+/* Payment Options with Animation */
 .payment-box {
-    background: var(--color-cream);
+    background: linear-gradient(135deg, rgba(249, 247, 242, 0.9) 0%, rgba(232, 228, 218, 0.9) 100%);
     border: 1px solid #e0ded7;
     border-radius: 15px;
     padding: 20px;
 }
 
-/* --- 5. FOOTER --- */
+.payment-option {
+    transition: all var(--transition-base) var(--transition-bouncy);
+    color: #888;
+    border-color: #ddd !important;
+    cursor: pointer;
+    border: 2px solid #ddd !important;
+}
+
+.payment-option:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+}
+
+.peer:checked+.payment-option {
+    border-color: var(--color-olive) !important;
+    background: linear-gradient(135deg, #f4f7f2 0%, #e8f0e5 100%) !important;
+    color: var(--color-olive) !important;
+    box-shadow: 0 4px 15px rgba(95, 103, 77, 0.2), 0 0 0 4px rgba(95, 103, 77, 0.1);
+    font-weight: bold;
+    transform: scale(1.05);
+}
+
+/* ============================================
+   10. MENU & ORDER PAGE STYLES
+   ============================================ */
+
+.page-header {
+    padding-top: 140px;
+    padding-bottom: 60px;
+    text-align: center;
+    background-color: var(--color-cream);
+    animation: fadeInUp 0.6s ease;
+}
+
+/* Modern Tabs */
+.nav-pills .nav-link {
+    background: transparent;
+    color: #aaa;
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 700;
+    border-radius: 0;
+    margin: 0 15px;
+    padding: 10px 5px;
+    border-bottom: 3px solid transparent;
+    transition: all var(--transition-base);
+    position: relative;
+}
+
+.nav-pills .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+    width: 0;
+    height: 3px;
+    background: var(--gradient-olive);
+    transition: width var(--transition-base);
+}
+
+.nav-pills .nav-link:hover {
+    color: var(--color-olive);
+    transform: translateY(-2px);
+}
+
+.nav-pills .nav-link:hover::after {
+    width: 100%;
+}
+
+.nav-pills .nav-link.active {
+    background: transparent;
+    color: var(--color-olive);
+    border-bottom: 3px solid var(--color-olive);
+}
+
+.nav-pills .nav-link.active::after {
+    width: 100%;
+}
+
+/* Menu Section with Animation */
+.menu-section {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 50px;
+    border-radius: 20px;
+    box-shadow: var(--shadow-lg);
+    margin-bottom: 40px;
+    border: 1px solid rgba(230, 230, 230, 0.5);
+    animation: scaleIn 0.5s ease;
+    transition: all var(--transition-base);
+}
+
+.menu-section:hover {
+    box-shadow: var(--shadow-xl);
+}
+
+.menu-category-title {
+    font-family: 'Playfair Display', serif;
+    color: var(--color-olive);
+    font-weight: 700;
+    font-size: 28px;
+    margin-bottom: 40px;
+    text-transform: uppercase;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 10px;
+    display: inline-block;
+    animation: fadeInUp 0.6s ease;
+}
+
+.menu-item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 15px;
+    transition: all var(--transition-base);
+    padding: 8px;
+    border-radius: 8px;
+}
+
+.menu-item-row:hover {
+    background: rgba(95, 103, 77, 0.05);
+    transform: translateX(5px);
+}
+
+.menu-item-name {
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--color-dark);
+    background: #fff;
+    padding-right: 10px;
+    z-index: 2;
+    transition: color var(--transition-base);
+}
+
+.menu-item-row:hover .menu-item-name {
+    color: var(--color-olive);
+}
+
+.menu-item-dots {
+    flex-grow: 1;
+    border-bottom: 2px dotted #ddd;
+    position: relative;
+    bottom: 5px;
+    transition: border-color var(--transition-base);
+}
+
+.menu-item-row:hover .menu-item-dots {
+    border-color: var(--color-olive-light);
+}
+
+.menu-item-price {
+    font-weight: 700;
+    color: var(--color-olive);
+    font-size: 16px;
+    background: #fff;
+    padding-left: 10px;
+    z-index: 2;
+    transition: all var(--transition-base);
+}
+
+.menu-item-row:hover .menu-item-price {
+    transform: scale(1.1);
+    color: var(--color-olive-dark);
+}
+
+.menu-item-desc {
+    font-size: 13px;
+    color: #888;
+    margin-top: -10px;
+    margin-bottom: 25px;
+    font-style: italic;
+    padding-left: 25px;
+    animation: fadeIn 0.5s ease;
+}
+
+/* Quantity Input with Modern Style */
+.qty-input {
+    width: 60px;
+    height: 40px;
+    text-align: center;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    font-weight: bold;
+    color: var(--color-olive);
+    background-color: #fff;
+    transition: all var(--transition-base);
+}
+
+.qty-input:focus {
+    border-color: var(--color-olive);
+    outline: none;
+    background-color: #f9f9f9;
+    transform: scale(1.05);
+    box-shadow: 0 0 0 4px rgba(95, 103, 77, 0.1);
+}
+
+.qty-input:hover {
+    border-color: var(--color-olive-light);
+}
+
+/* Hide number input spinners */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+/* Beans Table */
+.beans-table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+.beans-table th,
+.beans-table td {
+    white-space: normal;
+    word-wrap: break-word;
+    padding: 15px;
+    transition: background-color var(--transition-base);
+}
+
+.beans-table tbody tr {
+    transition: all var(--transition-base);
+}
+
+.beans-table tbody tr:hover {
+    background: rgba(95, 103, 77, 0.05);
+    transform: scale(1.01);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Reservation Box */
+.reservation-box {
+    background: linear-gradient(135deg, var(--color-olive-dark) 0%, var(--color-olive) 100%);
+    padding: 40px;
+    border-radius: 20px;
+    color: #fff;
+    box-shadow: var(--shadow-xl);
+    animation: scaleIn 0.5s ease;
+    transition: transform var(--transition-base);
+}
+
+.reservation-box:hover {
+    transform: translateY(-5px);
+}
+
+.reservation-box label {
+    color: #ffffff !important;
+    opacity: 1 !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    font-weight: 700 !important;
+    letter-spacing: 1.5px;
+}
+
+.form-control-dark {
+    background: rgba(255, 255, 255, 0.15);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: #fff;
+    border-radius: 10px;
+    padding: 14px;
+    transition: all var(--transition-base);
+}
+
+.form-control-dark::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.form-control-dark:focus {
+    background: rgba(255, 255, 255, 0.25);
+    color: #fff;
+    border-color: #fff;
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+.form-control-dark:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* ============================================
+   11. FOOTER STYLES
+   ============================================ */
+
 .footer {
-    background-color: var(--color-olive-dark);
+    background: linear-gradient(135deg, var(--color-olive-dark) 0%, #2b2623 100%);
     color: #fff;
     padding: 60px 0;
     text-align: center;
+    animation: fadeIn 0.8s ease;
+}
+
+.footer img {
+    transition: transform var(--transition-base);
+}
+
+.footer img:hover {
+    transform: scale(1.1) rotate(-5deg);
+}
+
+/* ============================================
+   12. UTILITY CLASSES
+   ============================================ */
+
+.hover-lift {
+    transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.hover-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.glassmorphism {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* ============================================
+   13. RESPONSIVE OPTIMIZATIONS
+   ============================================ */
+
+/* Tablet optimizations */
+@media (min-width: 768px) and (max-width: 1024px) {
+    body {
+        font-size: 15px;
+    }
+
+    .hero-section {
+        padding-top: 100px;
+    }
+
+    .section-padding {
+        padding: 80px 0;
+    }
+}
+
+/* Mobile Menu and General Mobile Styles */
+@media (max-width: 991px) {
+    .header {
+        background: rgba(249, 247, 242, 0.98);
+        box-shadow: var(--shadow-sm);
+        padding: 12px 0;
+    }
+
+    .navbar-brand img {
+        width: 50px;
+        margin-right: 10px;
+    }
+
+    .navbar-brand span {
+        font-size: 20px;
+    }
+
+    .navbar-toggler {
+        padding: 8px 10px;
+        border-width: 2px;
+    }
+
+    .navbar-collapse {
+        background-color: #ffffff;
+        margin-top: 15px;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: var(--shadow-lg);
+        animation: slideInRight 0.3s ease;
+    }
+
+    .nav-link {
+        font-size: 15px;
+        padding: 15px 10px !important;
+        border-bottom: 1px solid #f0f0f0;
+        letter-spacing: 1px;
+    }
+
+    .nav-link::before {
+        display: none;
+    }
+
+    .nav-link:last-child {
+        border-bottom: none;
+    }
+
+    .blob-bg {
+        width: 300px;
+        height: 300px;
+    }
+
+    .menu-section {
+        padding: 30px 20px;
+    }
+
+    .section-padding {
+        padding: 60px 0;
+    }
+
+    /* Hero Section Mobile */
+    .hero-section {
+        padding-top: 100px;
+        min-height: auto;
+        padding-bottom: 40px;
+    }
+
+    .hero-text {
+        text-align: center;
+        padding: 0 15px;
+    }
+
+    .hero-text h1 {
+        font-size: 2.5rem !important;
+    }
+
+    .hero-text h5 {
+        font-size: 12px;
+    }
+
+    .hero-text p {
+        font-size: 15px !important;
+        max-width: 100% !important;
+    }
+
+    .hero-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .hero-buttons .btn {
+        width: 100%;
+        max-width: 300px;
+    }
+}
+
+/* Mobile-specific improvements */
+@media (max-width: 767px) {
+
+    /* Typography optimizations */
+    body {
+        font-size: 14px;
+    }
+
+    h1,
+    .display-3 {
+        font-size: 2.2rem !important;
+        line-height: 1.2;
+    }
+
+    h2,
+    .display-4 {
+        font-size: 1.8rem !important;
+    }
+
+    h3,
+    .display-5 {
+        font-size: 1.5rem !important;
+    }
+
+    .lead {
+        font-size: 15px !important;
+    }
+
+    /* Touch targets */
+    button,
+    a.btn,
+    .nav-link {
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Header improvements */
+    .header {
+        padding: 10px 0;
+    }
+
+    .navbar-brand img {
+        width: 45px;
+    }
+
+    .navbar-brand span {
+        font-size: 18px;
+    }
+
+    /* Hero Section */
+    .hero-section {
+        padding-top: 90px;
+        padding-bottom: 30px;
+    }
+
+    .hero-text h1 {
+        font-size: 2rem !important;
+        margin-bottom: 20px !important;
+    }
+
+    .hero-text h5 {
+        font-size: 11px;
+        margin-bottom: 15px !important;
+    }
+
+    .hero-text p {
+        font-size: 14px !important;
+        margin-bottom: 30px !important;
+    }
+
+    .hero-img {
+        max-height: 300px;
+        margin-top: 30px;
+    }
+
+    /* Button improvements */
+    .btn-watu-primary,
+    .btn-watu-outline {
+        padding: 14px 30px;
+        font-size: 14px;
+        width: 100%;
+        max-width: 280px;
+    }
+
+    .btn-watu-gold {
+        padding: 14px 30px;
+        font-size: 14px;
+    }
+
+    /* Page header */
+    .page-header {
+        padding-top: 110px;
+        padding-bottom: 40px;
+    }
+
+    .page-header h1 {
+        font-size: 2rem !important;
+    }
+
+    .page-header h6 {
+        font-size: 11px;
+    }
+
+    /* Navigation pills/tabs */
+    .nav-pills {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .nav-pills .nav-link {
+        font-size: 14px;
+        margin: 5px 8px;
+        padding: 8px 4px;
+        min-width: 80px;
+        text-align: center;
+    }
+
+    /* Menu section */
+    .menu-section {
+        padding: 25px 15px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+    }
+
+    .menu-category-title {
+        font-size: 22px;
+        margin-bottom: 25px;
+    }
+
+    .menu-item-row {
+        flex-wrap: wrap;
+        padding: 10px 5px;
+    }
+
+    .menu-item-name {
+        font-size: 14px;
+        flex: 1 1 100%;
+        margin-bottom: 5px;
+    }
+
+    .menu-item-dots {
+        display: none;
+    }
+
+    .menu-item-price {
+        font-size: 15px;
+        padding-left: 0;
+    }
+
+    .menu-item-desc {
+        padding-left: 0;
+        font-size: 12px;
+        margin-bottom: 20px;
+    }
+
+    .qty-input {
+        width: 55px;
+        height: 44px;
+        font-size: 15px;
+    }
+
+    /* Beans table mobile */
+    .beans-table {
+        font-size: 13px;
+    }
+
+    .beans-table th,
+    .beans-table td {
+        padding: 10px 8px;
+    }
+
+    .beans-table th {
+        font-size: 12px;
+    }
+
+    /* Form improvements */
+    .form-card {
+        padding: 25px 20px;
+        border-radius: 15px;
+    }
+
+    .form-card h5 {
+        font-size: 1.3rem;
+    }
+
+    .form-control,
+    .form-select {
+        padding: 14px;
+        font-size: 15px;
+        border-radius: 10px !important;
+    }
+
+    /* Payment options */
+    .payment-box {
+        padding: 15px;
+    }
+
+    .payment-option {
+        padding: 12px 8px !important;
+        min-height: 70px;
+    }
+
+    .payment-option i {
+        font-size: 18px !important;
+    }
+
+    .payment-option .small {
+        font-size: 11px !important;
+    }
+
+    /* Reservation box */
+    .reservation-box {
+        padding: 30px 20px;
+        border-radius: 15px;
+    }
+
+    .reservation-box h3 {
+        font-size: 1.5rem;
+    }
+
+    .form-control-dark {
+        padding: 14px;
+        font-size: 15px;
+    }
+
+    /* Footer */
+    .footer {
+        padding: 40px 0;
+    }
+
+    .footer img {
+        width: 80px !important;
+        margin-bottom: 15px !important;
+    }
+
+    /* Section padding */
+    .section-padding {
+        padding: 50px 0;
+    }
+
+    /* About section */
+    .arca-illustration {
+        max-height: 350px;
+        margin-bottom: 30px;
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 374px) {
+    .hero-text h1 {
+        font-size: 1.75rem !important;
+    }
+
+    .navbar-brand span {
+        font-size: 16px;
+    }
+
+    .nav-pills .nav-link {
+        font-size: 13px;
+        margin: 5px 5px;
+        min-width: 70px;
+    }
+
+    .menu-category-title {
+        font-size: 20px;
+    }
+
+    .payment-option {
+        min-height: 65px;
+    }
+}
+
+/* ============================================
+   14. ACCESSIBILITY & PERFORMANCE
+   ============================================ */
+
+/* Reduced motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Hardware acceleration for smooth animations */
+.animate-gpu {
+    transform: translateZ(0);
+    will-change: transform;
+}
+
+/* Smooth scrollbar */
+.scrollbar-thin::-webkit-scrollbar {
+    width: 8px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--color-olive-light), var(--color-olive));
+    border-radius: 10px;
+    transition: background var(--transition-base);
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, var(--color-olive), var(--color-olive-dark));
+}
+
+.scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-olive) transparent;
+}
+
+/* ============================================
+   15. LOADING & FEEDBACK STATES
+   ============================================ */
+
+.btn-loading {
+    position: relative;
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.btn-loading::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    margin-left: -8px;
+    margin-top: -8px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Success/Error Alerts with Animation */
+.alert {
+    animation: slideInRight 0.5s ease;
+    border-radius: 15px;
+    border: none;
+    box-shadow: var(--shadow-md);
+}
+
+/* ============================================
+   16. CUSTOM SCROLLBAR FOR CONTAINERS
+   ============================================ */
+
+.container,
+.row {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+/* Better focus states */
+*:focus-visible {
+    outline: 2px solid var(--color-olive);
+    outline-offset: 2px;
+}
+
+button,
+a {
+    touch-action: manipulation;
+}
+
+/* Smooth page load */
+body.loading {
+    opacity: 0;
+}
+
+body.loaded {
+    opacity: 1;
+    transition: opacity 0.5s ease;
 }

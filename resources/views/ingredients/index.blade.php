@@ -20,7 +20,17 @@
                         </div>
                         <div class="mb-4">
                             <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Satuan</label>
-                            <input type="text" name="unit" class="w-full border-gray-300 rounded-lg text-sm focus:ring-[#5f674d] focus:border-[#5f674d]" placeholder="ml, gr, pcs">
+                            <select name="unit" class="w-full border-gray-300 rounded-lg text-sm focus:ring-[#5f674d] focus:border-[#5f674d]">
+                                <option value="gr">Gram (gr)</option>
+                                <option value="kg">Kilogram (kg)</option>
+                                <option value="ml">Milliliter (ml)</option>
+                                <option value="l">Liter (l)</option>
+                                <option value="pcs">Pcs</option>
+                                <option value="cup">Cup</option>
+                                <option value="pack">Pack</option>
+                                <option value="box">Box</option>
+                                <option value="galon">Galon</option>
+                            </select>
                         </div>
                         <div class="grid grid-cols-2 gap-3 mb-6">
                             <div>

@@ -9,4 +9,9 @@ class ChartOfAccount extends Model
 {
     use HasFactory;
     protected $guarded = ['id'];
+
+    public function journalDetails()
+    {
+        return $this->hasMany(JournalDetail::class, 'account_id');
+    }
 }

@@ -143,7 +143,12 @@
                                         Rp {{ number_format($order->total_amount, 0, ',', '.') }}
                                     </td>
                                     <td class="px-6 py-3 text-right">
-                                        <form action="{{ route('admin.complete.order', $order->id) }}" method="POST" onsubmit="return confirm('Konfirmasi pesanan ini sudah dibayar?');">
+                                        <form action="{{ route('admin.complete.order', $order->id) }}" method="POST" 
+                                              @submit.prevent="$dispatch('confirm', {
+                                                  title: 'Konfirmasi Pembayaran',
+                                                  message: 'Apakah pesanan ini sudah dibayar lunas?',
+                                                  action: () => $el.submit()
+                                              })">
                                             @csrf
                                             <button type="submit" class="px-3 py-1 bg-[#5f674d] hover:bg-[#4b523d] text-dark text-xs font-bold rounded transition">
                                                 Proses

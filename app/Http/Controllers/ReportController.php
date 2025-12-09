@@ -9,19 +9,34 @@ use Illuminate\Support\Facades\DB;
 
 class ReportController extends Controller
 {
-    public function jurnal()
+    public function jurnal(Request $request)
     {
-        // 1. Ambil Data Jurnal Lengkap (Tabel)
-        $journals = Journal::with('details.account')->latest()->paginate(20);
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
 
-        // 2. Siapkan Data Grafik (Total Debit per Hari - 7 Hari Terakhir)
-        // Asumsi: Debit di jurnal umum seringkali menggambarkan aktivitas transaksi masuk/aset
-        $chartData = Journal::select(
+        // 1. Ambil Data Jurnal Lengkap (Tabel)
+        $query = Journal::with('details.account')->latest();
+
+        if ($startDate && $endDate) {
+            $query->whereBetween('transaction_date', [$startDate, $endDate]);
+        }
+
+        $journals = $query->paginate(20)->withQueryString();
+
+        // 2. Siapkan Data Grafik (Total Debit per Hari - 7 Hari Terakhir / Filtered Range)
+        // Jika ada filter, gunakan range filter. Jika tidak, default 7 hari terakhir.
+        $chartQuery = Journal::select(
             DB::raw('DATE(transaction_date) as date'),
             DB::raw('SUM(total_debit) as total')
-        )
-        ->where('transaction_date', '>=', now()->subDays(7))
-        ->groupBy('date')
+        );
+
+        if ($startDate && $endDate) {
+            $chartQuery->whereBetween('transaction_date', [$startDate, $endDate]);
+        } else {
+            $chartQuery->where('transaction_date', '>=', now()->subDays(7));
+        }
+            
+        $chartData = $chartQuery->groupBy('date')
         ->orderBy('date')
         ->get();
 
@@ -31,7 +46,7 @@ class ReportController extends Controller
         });
         $values = $chartData->pluck('total');
 
-        return view('reports.index', compact('journals', 'labels', 'values'));
+        return view('reports.index', compact('journals', 'labels', 'values', 'startDate', 'endDate'));
     }
 
     public function stock()
