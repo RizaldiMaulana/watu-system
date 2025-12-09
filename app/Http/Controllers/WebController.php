@@ -9,7 +9,11 @@ class WebController extends Controller
 {
     public function index()
     {
-        return view('public.home');
+        $featured_products = Product::where('is_available', true)
+                                    ->limit(4)
+                                    ->get();
+
+        return view('public.home', compact('featured_products'));
     }
 
     public function order()

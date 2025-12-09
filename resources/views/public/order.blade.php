@@ -1,195 +1,13 @@
 @extends('public.layout')
 
 @section('content')
-<style>
-    /* --- Header & Layout --- */
-    .page-header {
-        padding-top: 140px;
-        padding-bottom: 60px;
-        text-align: center;
-        background-color: var(--color-cream);
-    }
-    
-    /* --- Tabs --- */
-    .nav-pills .nav-link {
-        background: transparent;
-        color: #aaa;
-        font-family: 'Playfair Display', serif;
-        font-size: 18px;
-        font-weight: 700;
-        border-radius: 0;
-        margin: 0 15px;
-        padding: 10px 5px;
-        border-bottom: 3px solid transparent;
-        transition: 0.3s;
-    }
-    .nav-pills .nav-link:hover { color: var(--color-olive); }
-    .nav-pills .nav-link.active {
-        background: transparent;
-        color: var(--color-olive);
-        border-bottom: 3px solid var(--color-olive);
-    }
-
-    /* --- Cafe Menu List Style --- */
-    .menu-section {
-        background: #fff;
-        padding: 50px;
-        border-radius: 15px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.05);
-        margin-bottom: 40px;
-        border: 1px solid #eee;
-    }
-    .menu-category-title {
-        font-family: 'Playfair Display', serif;
-        color: var(--color-olive);
-        font-weight: 700;
-        font-size: 28px;
-        margin-bottom: 40px;
-        text-transform: uppercase;
-        border-bottom: 2px solid #f0f0f0;
-        padding-bottom: 10px;
-        display: inline-block;
-    }
-    .menu-item-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-end;
-        margin-bottom: 15px;
-    }
-    .menu-item-name {
-        font-weight: 600;
-        font-size: 16px;
-        color: var(--color-dark);
-        background: #fff;
-        padding-right: 10px;
-        z-index: 2;
-    }
-    .menu-item-dots {
-        flex-grow: 1;
-        border-bottom: 2px dotted #ddd;
-        position: relative;
-        bottom: 5px;
-    }
-    .menu-item-price {
-        font-weight: 700;
-        color: var(--color-olive);
-        font-size: 16px;
-        background: #fff;
-        padding-left: 10px;
-        z-index: 2;
-    }
-    .menu-item-desc {
-        font-size: 13px;
-        color: #888;
-        margin-top: -10px;
-        margin-bottom: 25px;
-        font-style: italic;
-        padding-left: 25px; /* Indent agar rapi di bawah checkbox */
-    }
-
-    /* --- Beans Table --- */
-    .beans-table {
-        width: 100%;
-        table-layout: fixed; /* Memaksa tabel tetap di dalam container */
-    }
-    
-    .beans-table th, .beans-table td {
-        white-space: normal; /* Text boleh wrap ke bawah */
-        word-wrap: break-word;
-    }
-
-    /* Kolom Harga & Aksi di tabel jangan terlalu lebar */
-    .beans-table th:nth-child(4), 
-    .beans-table td:nth-child(4) { width: 15%; }
-    
-    .beans-table th:nth-child(5), 
-    .beans-table td:nth-child(5) { width: 10%; text-align: center; }
-
-   /* Fix Layout Overflow */
-    .container, .row {
-        max-width: 100%;
-        overflow-x: hidden; /* Mencegah scroll horizontal */
-    }
-
-    /* Style Input Jumlah yang Rapi */
-    .qty-input {
-        width: 50px;
-        height: 35px;
-        text-align: center;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        font-weight: bold;
-        color: var(--color-olive);
-        background-color: #fff;
-    }
-    
-    .qty-input:focus {
-        border-color: var(--color-olive);
-        outline: none;
-        background-color: #f9f9f9;
-    }
-
-    /* Hilangkan panah spinner di input number */
-    input[type=number]::-webkit-inner-spin-button, 
-    input[type=number]::-webkit-outer-spin-button { 
-        -webkit-appearance: none; 
-        margin: 0; 
-    }
-
-    /* --- Reservation Box --- */
-    .reservation-box {
-        background-color: var(--color-olive-dark);
-        padding: 40px;
-        border-radius: 15px;
-        color: #fff;
-    }
-    .form-control-dark {
-        background: rgba(255,255,255,0.1);
-        border: 1px solid rgba(255,255,255,0.2);
-        color: #fff;
-        border-radius: 8px;
-        padding: 12px;
-    }
-    .form-control-dark:focus {
-        background: rgba(255,255,255,0.2);
-        color: #fff;
-        border-color: #fff;
-        box-shadow: none;
-    }
-
-    /* --- Buttons --- */
-    .btn-watu-gold {
-        background-color: var(--watu-gold, #d4a056);
-        color: #fff;
-        border: none;
-        font-weight: bold;
-        padding: 12px 30px;
-        border-radius: 50px;
-        transition: 0.3s;
-    }
-    .btn-watu-gold:hover { background-color: #c29048; color: #fff; }
-    
-    .btn-watu-primary {
-        background-color: var(--color-olive);
-        color: #fff;
-        border-radius: 50px;
-        padding: 10px 30px;
-    }
-
-    .payment-option { transition: all 0.2s; color: #888; border-color: #ddd !important; }
-    .peer:checked + .payment-option {
-        border-color: var(--color-olive) !important;
-        background-color: #f4f7f2 !important;
-        color: var(--color-olive) !important;
-        box-shadow: 0 4px 10px rgba(95, 103, 77, 0.15);
-        font-weight: bold;
-    }
-</style>
+@section('content')
+<!-- Page specific styles handled by public/css/style.css -->
 
 <div class="container">
     
     @if(session('success'))
-        <div class="alert alert-success text-center mt-5" style="background-color: var(--color-olive); color: white; border: none;">
+        <div class="alert alert-success text-center mt-5 bg-watu-olive text-white border-none">
             {{ session('success') }}
         </div>
     @endif
@@ -199,9 +17,11 @@
         </div>
     @endif
 
-    <div class="page-header">
-        <h6 class="text-olive text-uppercase" style="letter-spacing: 3px;">Our Selections</h6>
-        <h1 class="display-4 font-serif font-weight-bold">Menu & Reservation</h1>
+    <div class="page-header position-relative overflow-hidden">
+        <div class="position-relative z-20">
+            <h6 class="text-olive text-uppercase tracking-[3px]">Our Selections</h6>
+            <h1 class="display-4 font-serif font-weight-bold">Menu & Reservation</h1>
+        </div>
     </div>
 
     <ul class="nav nav-pills justify-content-center mb-5" id="pills-tab" role="tablist">
@@ -230,12 +50,12 @@
                                 </div>
                                 
                                 @foreach($cafe_products as $menu)
-                                <div class="col-md-6 mb-4"> <div class="menu-item-row align-items-center"> <div class="me-3">
+                                <div class="col-md-6 mb-4"> <div class="menu-item-row align-items-center" data-price="{{ $menu->price }}"> <div class="me-3">
                                             <input type="number" name="quantities[{{ $menu->id }}]" class="qty-input" min="0" value="" placeholder="0">
                                         </div>
 
                                         <div class="menu-item-name flex-grow-1">
-                                            <span style="font-weight: 600; font-size: 16px;">{{ $menu->name }}</span>
+                                            <span class="font-semibold text-base">{{ $menu->name }}</span>
                                         </div>
 
                                         <div class="menu-item-dots mx-2"></div>
@@ -264,7 +84,7 @@
                         <div class="collapse" id="orderFormCafe">
                             <div class="row justify-content-center mt-4">
                                 <div class="col-md-8">
-                                    <div class="form-card"> <h5 class="text-center font-serif mb-4" style="color: var(--color-olive-dark);">Complete Your Order</h5>
+                                    <div class="form-card"> <h5 class="text-center font-serif mb-4 text-watu-olive-dark">Complete Your Order</h5>
                                         
                                         <div class="row mb-4">
                                             <div class="col-6">
@@ -281,28 +101,28 @@
                                             <label class="small text-muted mb-2 d-block">Metode Pembayaran</label>
                                             <div class="payment-box"> <div class="row g-3">
                                                     <div class="col-4">
-                                                        <label class="w-100" style="cursor: pointer;">
+                                                        <label class="w-100 cursor-pointer">
                                                             <input type="radio" name="payment_method" value="QRIS" class="d-none peer" required checked>
                                                             <div class="payment-option p-3 text-center border rounded bg-white h-100">
-                                                                <i class="fa fa-qrcode mb-2" style="font-size: 20px;"></i><br>
+                                                                <i class="fa fa-qrcode mb-2 text-[20px]"></i><br>
                                                                 <span class="small fw-bold">QRIS</span>
                                                             </div>
                                                         </label>
                                                     </div>
                                                     <div class="col-4">
-                                                        <label class="w-100" style="cursor: pointer;">
+                                                        <label class="w-100 cursor-pointer">
                                                             <input type="radio" name="payment_method" value="Cash" class="d-none peer">
                                                             <div class="payment-option p-3 text-center border rounded bg-white h-100">
-                                                                <i class="fa fa-money mb-2" style="font-size: 20px;"></i><br>
+                                                                <i class="fa fa-money mb-2 text-[20px]"></i><br>
                                                                 <span class="small fw-bold">Tunai</span>
                                                             </div>
                                                         </label>
                                                     </div>
                                                     <div class="col-4">
-                                                        <label class="w-100" style="cursor: pointer;">
+                                                        <label class="w-100 cursor-pointer">
                                                             <input type="radio" name="payment_method" value="Debit/Credit" class="d-none peer">
                                                             <div class="payment-option p-3 text-center border rounded bg-white h-100">
-                                                                <i class="fa fa-credit-card mb-2" style="font-size: 20px;"></i><br>
+                                                                <i class="fa fa-credit-card mb-2 text-[20px]"></i><br>
                                                                 <span class="small fw-bold">Debit/CC</span>
                                                             </div>
                                                         </label>
@@ -331,44 +151,65 @@
                     
                     <form action="{{ route('public.cafe.store') }}" method="POST">
                         @csrf
-                        <div class="bg-white p-0 rounded shadow-sm overflow-hidden">
-                            <div class="table-responsive">
-                                <table class="table beans-table mb-0">
-                                    <thead>
-                                        <tr>
-                                            <th>Bean Name</th>
-                                            <th>Varietal/<br>Process</th>
-                                            <th>Tasting Notes</th>
-                                            <th class="text-right">Price (200g)</th>
-                                            <th class="text-center" style="width: 100px;">Jumlah</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($roast_beans as $bean)
-                                            <tr>
-                                                <td>
-                                                    <strong style="font-size:16px; color:var(--color-dark);">{{ $bean->name }}</strong>
-                                                    <br><small class="text-muted">Single Origin</small>
-                                                </td>
-                                                <td>
-                                                    <span class="badge bg-light text-dark border">Full Wash</span>
-                                                    <span class="badge bg-light text-dark border">Arabica</span>
-                                                </td>
-                                                <td style="font-style:italic; color:#666;">
-                                                    Citrus, Brown Sugar, Floral Finish
-                                                </td>
-                                                <td class="text-right font-weight-bold text-olive">
-                                                    Rp {{ number_format($bean->price, 0, ',', '.') }}
-                                                </td>
-                                                <td class="text-center align-middle">
-                                                    <input type="number" name="quantities[{{ $bean->id }}]" class="qty-input mx-auto d-block" min="0" value="" placeholder="0">
-                                                </td>
-                                            </tr>
-                                            @endforeach
-                                    </tbody>
-                                </table>
+                        <div class="row">
+                            @foreach($roast_beans as $bean)
+                            <div class="col-lg-4 col-md-6 mb-5">
+                                <div class="roast-card-alder">
+                                    <div class="roast-card-image">
+                                        <!-- Placeholder if no image, or logic to show default -->
+                                        @if($bean->image)
+                                            <img src="{{ asset('storage/' . $bean->image) }}" alt="{{ $bean->name }}">
+                                        @else
+                                            <img src="{{ asset('images/coffee-bag-mockup.png') }}" alt="{{ $bean->name }}" style="opacity:0.5"> 
+                                            <!-- Note: Ensure you have a fallback or handle this gracefully. For now reusing generic logic or leaving distinct -->
+                                        @endif
+                                    </div>
+                                    
+                                    <div class="text-center mb-3">
+                                        <div class="roast-subtitle">Single Origin</div>
+                                        <h3 class="roast-title">{{ $bean->name }}</h3>
+                                        <p class="roast-desc">
+                                            Notes: Citrus, Brown Sugar, Floral Finish<br>
+                                            <span class="badge bg-light text-dark border mt-2">Full Wash</span>
+                                            <span class="badge bg-light text-dark border mt-2">Arabica</span>
+                                        </p>
+                                    </div>
+
+                                    <div class="roast-options-box">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <span class="roast-option-title mb-0">Price (200g)</span>
+                                            <span class="roast-price-tag">Rp {{ number_format($bean->price, 0, ',', '.') }}</span>
+                                        </div>
+                                        
+                                        <div class="form-group mb-0">
+                                            <label class="roast-option-title text-center w-100 d-block mb-2">Quantity</label>
+                                            <div class="d-flex justify-content-center align-items-center">
+                                                <button type="button" class="btn btn-sm btn-outline-secondary rounded-circle" style="width:30px;height:30px;" onclick="adjustQty(this, -1)">-</button>
+                                                <!-- Hidden 'bean-row' equivalent for JS calc logic -->
+                                                <div class="bean-row d-none" data-price="{{ $bean->price }}"></div>
+                                                <input type="number" name="quantities[{{ $bean->id }}]" class="qty-input form-control text-center mx-2 border-0 bg-transparent font-weight-bold" style="width:60px; font-size:1.2rem;" min="0" value="0" placeholder="0">
+                                                <button type="button" class="btn btn-sm btn-outline-secondary rounded-circle" style="width:30px;height:30px;" onclick="adjustQty(this, 1)">+</button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
                             </div>
+                            @endforeach
                         </div>
+                        
+                        <!-- Inline JS script for the +/- buttons since we just added them -->
+                        <script>
+                            function adjustQty(btn, val) {
+                                const input = btn.parentElement.querySelector('input');
+                                let current = parseInt(input.value) || 0;
+                                let newVal = current + val;
+                                if(newVal < 0) newVal = 0;
+                                input.value = newVal;
+                                // Trigger input event for the global calculator
+                                input.dispatchEvent(new Event('input', { bubbles: true }));
+                            }
+                        </script>
 
                         <div class="row mt-4">
                             <div class="col-12 text-center">
@@ -382,7 +223,7 @@
                         <div class="collapse" id="orderFormBeans">
                             <div class="row justify-content-center mt-4">
                                 <div class="col-md-8">
-                                    <div class="form-card"> <h5 class="text-center font-serif mb-4" style="color: var(--color-olive-dark);">Complete Your Order</h5>
+                                    <div class="form-card"> <h5 class="text-center font-serif mb-4 text-watu-olive-dark">Complete Your Order</h5>
                                         
                                         <div class="row mb-4">
                                             <div class="col-6">
@@ -399,28 +240,28 @@
                                             <label class="small text-muted mb-2 d-block">Metode Pembayaran</label>
                                             <div class="payment-box"> <div class="row g-3">
                                                     <div class="col-4">
-                                                        <label class="w-100" style="cursor: pointer;">
+                                                        <label class="w-100 cursor-pointer">
                                                             <input type="radio" name="payment_method" value="QRIS" class="d-none peer" required checked>
                                                             <div class="payment-option p-3 text-center border rounded bg-white h-100">
-                                                                <i class="fa fa-qrcode mb-2" style="font-size: 20px;"></i><br>
+                                                                <i class="fa fa-qrcode mb-2 text-[20px]"></i><br>
                                                                 <span class="small fw-bold">QRIS</span>
                                                             </div>
                                                         </label>
                                                     </div>
                                                     <div class="col-4">
-                                                        <label class="w-100" style="cursor: pointer;">
+                                                        <label class="w-100 cursor-pointer">
                                                             <input type="radio" name="payment_method" value="Cash" class="d-none peer">
                                                             <div class="payment-option p-3 text-center border rounded bg-white h-100">
-                                                                <i class="fa fa-money mb-2" style="font-size: 20px;"></i><br>
+                                                                <i class="fa fa-money mb-2 text-[20px]"></i><br>
                                                                 <span class="small fw-bold">Tunai</span>
                                                             </div>
                                                         </label>
                                                     </div>
                                                     <div class="col-4">
-                                                        <label class="w-100" style="cursor: pointer;">
+                                                        <label class="w-100 cursor-pointer">
                                                             <input type="radio" name="payment_method" value="Debit/Credit" class="d-none peer">
                                                             <div class="payment-option p-3 text-center border rounded bg-white h-100">
-                                                                <i class="fa fa-credit-card mb-2" style="font-size: 20px;"></i><br>
+                                                                <i class="fa fa-credit-card mb-2 text-[20px]"></i><br>
                                                                 <span class="small fw-bold">Debit/CC</span>
                                                             </div>
                                                         </label>
@@ -454,29 +295,29 @@
                     <div class="reservation-box shadow-lg">
                         <div class="text-center mb-4">
                             <h3 class="font-serif mb-2">Table Reservation</h3>
-                            <p style="opacity: 0.8;">Book a spot to enjoy the vibe.</p>
+                            <p class="opacity-80">Book a spot to enjoy the vibe.</p>
                         </div>
                         <form action="{{ route('public.reservation.store') }}" method="POST">
                             @csrf
                             <div class="form-group mb-3">
-                                <label class="small text-uppercase font-weight-bold" style="opacity:0.7">Your Name</label>
+                                <label class="small text-uppercase font-weight-bold opacity-70">Your Name</label>
                                 <input type="text" name="name" class="form-control form-control-dark" required>
                             </div>
                             <div class="row">
                                 <div class="col-6 mb-3">
-                                    <label class="small text-uppercase font-weight-bold" style="opacity:0.7">Date</label>
+                                    <label class="small text-uppercase font-weight-bold opacity-70">Date</label>
                                     <input type="date" name="date" class="form-control form-control-dark" required>
                                 </div>
                                 <div class="col-6 mb-3">
-                                    <label class="small text-uppercase font-weight-bold" style="opacity:0.7">Time</label>
+                                    <label class="small text-uppercase font-weight-bold opacity-70">Time</label>
                                     <input type="time" name="time" class="form-control form-control-dark" required>
                                 </div>
                             </div>
                             <div class="form-group mb-4">
-                                <label class="small text-uppercase font-weight-bold" style="opacity:0.7">Guest Count</label>
+                                <label class="small text-uppercase font-weight-bold opacity-70">Guest Count</label>
                                 <input type="number" name="pax" class="form-control form-control-dark" min="1" value="2" required>
                             </div>
-                            <button type="submit" class="btn btn-watu-gold w-100 py-3 text-uppercase" style="letter-spacing: 2px;">Confirm Booking</button>
+                            <button type="submit" class="btn btn-watu-gold w-100 py-3 text-uppercase tracking-[2px]">Confirm Booking</button>
                         </form>
                     </div>
                 </div>
@@ -485,4 +326,126 @@
 
     </div>
 </div>
+
+<script>
+    // Format IDR currency
+    const formatIDR = (number) => {
+        return new Intl.NumberFormat('id-ID', { 
+            style: 'currency', 
+            currency: 'IDR',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(number);
+    };
+
+    // Calculate Totals
+    const updateTotals = (containerId, buttonId) => {
+        let totalQty = 0;
+        let totalPrice = 0;
+
+        $(containerId).find('.qty-input').each(function() {
+            const qty = parseInt($(this).val()) || 0;
+            // For Cafe items, price is on .menu-item-row. For Beans, we put it on .bean-row logic below
+            let price = 0;
+            
+            const menuRow = $(this).closest('.menu-item-row');
+            const beanRow = $(this).closest('tr').find('.bean-row');
+
+            if (menuRow.length) {
+                price = parseFloat(menuRow.data('price')) || 0;
+            } else if (beanRow.length) {
+                price = parseFloat(beanRow.data('price')) || 0;
+            }
+
+            if (qty > 0) {
+                totalQty += qty;
+                totalPrice += (qty * price);
+            }
+        });
+
+        const btn = $(buttonId);
+        if (totalQty > 0) {
+            btn.html(`Proceed to Order (${totalQty} items - ${formatIDR(totalPrice)})`);
+            btn.removeClass('btn-watu-primary').addClass('btn-watu-gold shadow-lg');
+            
+            // Highlight the button with a pulse if it just changed state to active
+            if (!btn.hasClass('has-items')) {
+                btn.addClass('has-items pulse-animation');
+            }
+        } else {
+            btn.html('Proceed to Order');
+            btn.addClass('btn-watu-primary').removeClass('btn-watu-gold shadow-lg has-items pulse-animation');
+        }
+    };
+
+    // Event Listeners
+    $('#pills-cafe .qty-input').on('input', function() {
+        updateTotals('#pills-cafe', '#pills-cafe [data-target="#orderFormCafe"]');
+        
+        // Visual feedback on row
+        const row = $(this).closest('.menu-item-row');
+        if ($(this).val() > 0) {
+            row.addClass('bg-watu-olive/10');
+        } else {
+            row.removeClass('bg-watu-olive/10');
+        }
+    });
+
+    $('#pills-beans .qty-input').on('input', function() {
+        updateTotals('#pills-beans', '#pills-beans [data-target="#orderFormBeans"]');
+         // Visual feedback row
+         const row = $(this).closest('tr');
+         if ($(this).val() > 0) {
+             row.addClass('bg-gray-50');
+         } else {
+             row.removeClass('bg-gray-50');
+         }
+    });
+    
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a.smooth-scroll').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+    
+    // Animate tab content on switch
+    $('.nav-pills a').on('shown.bs.tab', function (e) {
+        const targetPane = $($(e.target).attr('href'));
+        targetPane.css('opacity', 0).animate({opacity: 1}, 300);
+    });
+
+    // Hash based tab switching
+    var url = document.location.toString();
+    if (url.match('#')) {
+        $('.nav-pills a[href="#' + url.split('#')[1] + '"]').tab('show');
+    } 
+
+    // Add animation to form reveal
+    $('[data-toggle="collapse"]').on('click', function() {
+        const target = $($(this).data('target'));
+        if (!target.hasClass('show')) {
+            setTimeout(() => {
+                target.find('.form-card').css('opacity', 0).animate({opacity: 1}, 400);
+            }, 100);
+        }
+    });
+    
+    // Payment option selection animation
+    $('input[name="payment_method"]').on('change', function() {
+        $('.payment-option').each(function() {
+            $(this).removeClass('scale-105 border-watu-olive bg-gray-50');
+        });
+        const selected = $(this).next('.payment-option');
+        selected.addClass('scale-105');
+        // Add active states if needed, but styling seems handled by peer-checked in CSS
+    });
+</script>
 @endsection

@@ -17,4 +17,14 @@ class Purchase extends Model
     {
         return $this->hasMany(PurchaseItem::class);
     }
+
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class);
+    }
+
+    protected $casts = [
+        'transaction_date' => 'date',
+        'due_date' => 'date',
+    ];
 }

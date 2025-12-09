@@ -21,6 +21,7 @@ class PurchaseController extends Controller
             'transaction_date' => 'required|date',
             'items' => 'required|array',
             'payment_method' => 'required',
+            'due_date' => 'required_if:payment_method,credit|date|after_or_equal:transaction_date',
         ]);
 
         try {
@@ -32,6 +33,9 @@ class PurchaseController extends Controller
                     $totalAmount += $item['quantity'] * $item['price'];
                 }
 
+                $paymentStatus = ($request->payment_method == 'credit') ? 'unpaid' : 'paid';
+                $dueDate = ($request->payment_method == 'credit') ? $request->due_date : $request->transaction_date;
+
                 // 2. Simpan Header
                 $purchase = Purchase::create([
                     'invoice_number' => 'PUR-' . time(),
@@ -39,6 +43,8 @@ class PurchaseController extends Controller
                     'transaction_date' => $request->transaction_date,
                     'total_amount' => $totalAmount,
                     'payment_method' => $request->payment_method,
+                    'payment_status' => $paymentStatus,
+                    'due_date' => $dueDate,
                     'notes' => $request->notes ?? null,
                 ]);
 
@@ -55,9 +61,25 @@ class PurchaseController extends Controller
                         'subtotal' => $item['quantity'] * $item['price'],
                     ]);
                     
-                    // AUTO INCREMENT STOCK
+                    // AUTO INCREMENT STOCK & HITUNG WEIGHTED AVERAGE COST
                     if ($ingredient) {
-                        $ingredient->increment('stock', $item['quantity']);
+                        $oldStock = $ingredient->stock;
+                        $oldCost = $ingredient->cost_price; // Default 0 from migration
+                        $newQty = $item['quantity'];
+                        $newPrice = $item['price'];
+
+                        // Calculate Weighted Average Cost
+                        // (Old Total Value + New Total Value) / Total Qty
+                        $totalOldValue = $oldStock * $oldCost;
+                        $totalNewValue = $newQty * $newPrice;
+                        $totalQty = $oldStock + $newQty;
+
+                        $newAvgCost = ($totalQty > 0) ? ($totalOldValue + $totalNewValue) / $totalQty : $newPrice;
+
+                        // Update Ingredient
+                        $ingredient->cost_price = $newAvgCost;
+                        $ingredient->stock = $totalQty; // Update stock directly with total
+                        $ingredient->save();
                     }
                 }
 

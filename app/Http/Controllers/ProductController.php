@@ -34,7 +34,7 @@ class ProductController extends Controller
    public function store(Request $request)
     {
         $validated = $request->validate([
-            'code' => 'nullable|unique:products,code,' . ($product->id ?? ''), // Sesuaikan ID untuk update
+            'code' => 'nullable|unique:products,code',
             'name' => 'required|string|max:255',
             'category' => 'required',
             'varietal' => 'nullable|string|max:100', // Tambahan

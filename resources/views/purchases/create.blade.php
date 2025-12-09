@@ -89,12 +89,12 @@
                         </div>
                     </div>
 
-                    <div class="mb-8">
+                    <div class="mb-8" x-data="{ paymentMethod: 'cash' }">
                         <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3">Metode Pembayaran</label>
                         <div class="grid grid-cols-2 gap-4">
                             
                             <div>
-                                <input type="radio" name="payment_method" id="pm_cash" value="cash" class="peer sr-only" checked>
+                                <input type="radio" name="payment_method" id="pm_cash" value="cash" x-model="paymentMethod" class="peer sr-only">
                                 <label for="pm_cash" 
                                        class="block p-4 rounded-xl border-2 border-gray-200 cursor-pointer transition-all duration-200
                                               hover:bg-gray-50 hover:border-gray-300
@@ -117,7 +117,7 @@
                             </div>
 
                             <div>
-                                <input type="radio" name="payment_method" id="pm_credit" value="credit" class="peer sr-only">
+                                <input type="radio" name="payment_method" id="pm_credit" value="credit" x-model="paymentMethod" class="peer sr-only">
                                 <label for="pm_credit" 
                                        class="block p-4 rounded-xl border-2 border-gray-200 cursor-pointer transition-all duration-200
                                               hover:bg-gray-50 hover:border-gray-300
@@ -139,6 +139,14 @@
                                 </label>
                             </div>
 
+                        </div>
+
+                        <!-- Due Date Input (Only show if Credit) -->
+                        <div x-show="paymentMethod === 'credit'" class="mt-4" x-transition>
+                            <label class="block text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Jatuh Tempo (Due Date)</label>
+                            <input type="date" name="due_date" 
+                                   class="w-full bg-white border border-gray-300 text-gray-700 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#d4a056]/20 focus:border-[#d4a056] transition font-medium"
+                                   min="{{ date('Y-m-d') }}">
                         </div>
                     </div>
 

@@ -66,7 +66,8 @@ class DatabaseSeeder extends Seeder
         ]);
         
         // Tambahan Akun Lain (Opsional)
-        ChartOfAccount::create(['code' => '4-100', 'name' => 'Penjualan Kopi', 'type' => 'revenue']);
+        ChartOfAccount::create(['code' => '4-100', 'name' => 'Penjualan Cafe', 'type' => 'revenue']); // ID 4
+        ChartOfAccount::create(['code' => '4-101', 'name' => 'Penjualan Roastery', 'type' => 'revenue']); // ID 5
         ChartOfAccount::create(['code' => '5-100', 'name' => 'Beban Gaji', 'type' => 'expense']);
 
         // 3. Buat Data Supplier Dummy

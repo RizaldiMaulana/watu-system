@@ -59,6 +59,65 @@ class PublicOrderController extends Controller
                 'payment_method' => $request->payment_method // Ambil dari Form
             ]);
 
+            // --- AUTOMATED ACCOUNTING ---
+            // Create Journal Entry for this Sales Transaction
+            // Debit: Kas Besar (ID 2)
+            // Credit: Penjualan Cafe (ID 4) or Penjualan Roastery (ID 5)
+
+            // 1. Calculate Revenue Split
+            $revenueCafe = 0;
+            $revenueRoastery = 0;
+
+            foreach ($itemsToOrder as $productId => $qty) {
+                $p = Product::find($productId);
+                if ($p) {
+                    $lineTotal = $p->price * $qty;
+                    if ($p->category == 'roast_bean') {
+                        $revenueRoastery += $lineTotal;
+                    } else {
+                        $revenueCafe += $lineTotal;
+                    }
+                }
+            }
+
+            // 2. Create Journal Header
+            $journal = \App\Models\Journal::create([
+                'ref_number' => $trx->invoice_number,
+                'transaction_date' => now(),
+                'description' => 'Sales Order ' . $trx->invoice_number . ' (' . $trx->customer_name . ')',
+                'total_debit' => $totalAmount,
+                'total_credit' => $totalAmount,
+            ]);
+
+            // 3. Create Journal Details
+            // DEBIT: Kas Besar (ID 2) - Asumsi uang masuk/tagihan
+            \App\Models\JournalDetail::create([
+                'journal_id' => $journal->id,
+                'account_id' => 2, // Kas Besar
+                'debit' => $totalAmount,
+                'credit' => 0
+            ]);
+
+            // CREDIT: Revenue Accounts
+            if ($revenueCafe > 0) {
+                \App\Models\JournalDetail::create([
+                    'journal_id' => $journal->id,
+                    'account_id' => 4, // Penjualan Cafe
+                    'debit' => 0,
+                    'credit' => $revenueCafe
+                ]);
+            }
+
+            if ($revenueRoastery > 0) {
+                \App\Models\JournalDetail::create([
+                    'journal_id' => $journal->id,
+                    'account_id' => 5, // Penjualan Roastery
+                    'debit' => 0,
+                    'credit' => $revenueRoastery
+                ]);
+            }
+            // --- END AUTOMATED ACCOUNTING ---
+
             foreach ($transactionItems as $item) {
                 TransactionItem::create([
                     'transaction_id' => $trx->id,
@@ -71,7 +130,7 @@ class PublicOrderController extends Controller
 
             DB::commit();
 
-            return redirect()->route('public.invoice', $trx->id);
+            return redirect()->route('public.invoice', $trx->uuid);
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -79,10 +138,10 @@ class PublicOrderController extends Controller
         }
     }
 
-    public function showInvoice($id)
+    public function showInvoice($uuid)
     {
-        // Ambil data transaksi beserta item produknya
-        $transaction = Transaction::with('items.product')->findOrFail($id);
+        // Ambil data transaksi beserta item produknya berdasarkan UUID (untuk keamanan IDOR)
+        $transaction = Transaction::where('uuid', $uuid)->with('items.product')->firstOrFail();
 
         return view('public.invoice', compact('transaction'));
     }

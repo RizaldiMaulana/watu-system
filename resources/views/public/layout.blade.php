@@ -15,19 +15,11 @@
 
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/responsive.css') }}">
+
     <link rel="stylesheet" href="{{ asset('css/font-awesome.min.css') }}">
-    
-    <style>
-        .loader_bg { display: none; }
-        .header { position: absolute; z-index: 999; width: 100%; padding: 20px; }
-        .logo img { width: 100px; }
-        .nav-link { color: #424b2d !important; font-weight: bold; text-transform: uppercase; }
-        .footer { color: #fff; padding: 50px 0; margin-top: 50px; }
-    </style>
 </head>
 <body class="main-layout">
-    <header class="header">
+    <header class="header" id="mainHeader">
         <div class="container">
             <nav class="navbar navbar-expand-lg navbar-light">
                 
@@ -36,14 +28,14 @@
                     <span>Watu Coffee & Roastery</span>
                 </a>
 
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarWatu" aria-controls="navbarWatu" aria-expanded="false" aria-label="Toggle navigation" style="border:none;">
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarWatu" aria-controls="navbarWatu" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
                 <div class="collapse navbar-collapse" id="navbarWatu">
                     <ul class="navbar-nav ml-auto text-center">
                         <li class="nav-item"><a class="nav-link" href="{{ route('home') }}">Home</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
+                        <li class="nav-item"><a class="nav-link smooth-scroll" href="#about">About</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('order') }}">Order & Reservation</a></li>
                         
                         @auth
@@ -76,5 +68,43 @@
 
     <script src="{{ asset('js/jquery.min.js') }}"></script>
     <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
+    
+    <script>
+        // Page Load Animation
+        window.addEventListener('load', function() {
+            document.body.classList.add('loaded');
+        });
+        
+        // Header Scroll Effect
+        window.addEventListener('scroll', function() {
+            const header = document.getElementById('mainHeader');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+        
+        // Smooth Scroll for Anchor Links
+        document.querySelectorAll('a.smooth-scroll').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // Close mobile menu on link click
+        $('.navbar-nav a').on('click', function(){
+            if(window.innerWidth < 992) {
+                $('.navbar-collapse').collapse('hide');
+            }
+        });
+    </script>
 </body>
 </html>

@@ -81,32 +81,59 @@ class AdminController extends Controller {
             ]);
             
             // 2. CATAT JURNAL AKUNTANSI OTOMATIS
+            // 2. CATAT JURNAL AKUNTANSI OTOMATIS
+            
             // Header Jurnal
-            $journalId = DB::table('journals')->insertGetId([
-                'ref_no' => $trx->invoice_number,
+            $journal = \App\Models\Journal::create([
+                'ref_number' => $trx->invoice_number,
                 'transaction_date' => now(),
                 'description' => 'Penerimaan Web: ' . $trx->customer_name,
-                'created_at' => now(),
-                'updated_at' => now(),
+                'total_debit' => $trx->total_amount,
+                'total_credit' => $trx->total_amount,
             ]);
 
-            // DEBIT: Bank BCA (1102)
-            DB::table('journal_entries')->insert([
-                'journal_id' => $journalId,
-                'coa_code' => '1102',
+            // DEBIT: Bank BCA (Anggap ID 2 = Kas Besar / ID 3 bisa disesuaikan, atau buat ID baru misal 10 = Bank)
+            // Untuk sementara masuk ke Kas Besar (ID 2) atau Utang (jika invoice).
+            // Default ke Kas Besar (ID 2) sesuai PosController, atau jika mau Bank BCA harus buat akun baru.
+            // Asumsi pakai ID 2 dulu agar aman dengan data benih.
+            \App\Models\JournalDetail::create([
+                'journal_id' => $journal->id,
+                'account_id' => 2, // Kas Besar
                 'debit' => $trx->total_amount,
                 'credit' => 0,
-                'created_at' => now(), 'updated_at' => now(),
             ]);
 
-            // KREDIT: Pendapatan (4101)
-            DB::table('journal_entries')->insert([
-                'journal_id' => $journalId,
-                'coa_code' => '4101', 
-                'debit' => 0,
-                'credit' => $trx->total_amount,
-                'created_at' => now(), 'updated_at' => now(),
-            ]);
+            // HITUNG SPLIT REVENUE
+            $totalCafe = 0;
+            $totalRoastery = 0;
+
+            foreach ($trx->items as $item) {
+                if ($item->product->category == 'roast_bean') {
+                    $totalRoastery += $item->subtotal;
+                } else {
+                    $totalCafe += $item->subtotal;
+                }
+            }
+
+            // KREDIT: Pendapatan Cafe (ID 4)
+            if ($totalCafe > 0) {
+                \App\Models\JournalDetail::create([
+                    'journal_id' => $journal->id,
+                    'account_id' => 4, // Penjualan Cafe
+                    'debit' => 0, 
+                    'credit' => $totalCafe,
+                ]);
+            }
+
+            // KREDIT: Pendapatan Roastery (ID 5)
+            if ($totalRoastery > 0) {
+                 \App\Models\JournalDetail::create([
+                    'journal_id' => $journal->id,
+                    'account_id' => 5, // Penjualan Roastery
+                    'debit' => 0, 
+                    'credit' => $totalRoastery,
+                ]);
+            }
 
             DB::commit();
             return redirect()->back()->with('success', 'Pesanan berhasil diverifikasi & Jurnal tercatat!');
