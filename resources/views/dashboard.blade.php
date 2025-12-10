@@ -150,7 +150,7 @@
                                                   action: () => $el.submit()
                                               })">
                                             @csrf
-                                            <button type="submit" class="px-3 py-1 bg-[#5f674d] hover:bg-[#4b523d] text-dark text-xs font-bold rounded transition">
+                                            <button type="submit" class="px-3 py-1 bg-[#5f674d] hover:bg-[#4b523d] text-white text-xs font-bold rounded transition">
                                                 Proses
                                             </button>
                                         </form>
