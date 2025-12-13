@@ -1,0 +1,9 @@
+{
+  "appId": "com.watu.system",
+  "appName": "Watu System",
+  "webDir": "public",
+  "server": {
+    "url": "https://watu-system.com",
+    "cleartext": true
+  }
+}

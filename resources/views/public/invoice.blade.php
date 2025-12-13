@@ -122,6 +122,13 @@
                     <tr>
                         <td>
                             <span class="fw-bold">{{ $item->product->name }}</span>
+                            @if(!empty($item->options) && is_array($item->options))
+                                <div class="text-muted small" style="font-size: 11px; margin-top: 2px;">
+                                    @foreach($item->options as $key => $value)
+                                        <div><span class="text-uppercase" style="font-weight: 600;">{{ $key }}:</span> {{ $value }}</div>
+                                    @endforeach
+                                </div>
+                            @endif
                         </td>
                         <td class="text-center">x{{ $item->quantity }}</td>
                         <td class="text-end">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</td>

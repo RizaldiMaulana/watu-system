@@ -12,13 +12,25 @@ use Illuminate\Support\Facades\Validator; // Tambahkan Validator
 
 class PosController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $products = Product::where('is_available', true)->get();
+        $categories = \App\Models\Category::orderBy('sort_order')->get();
         
-        $categories = $products->pluck('category')->unique();
+        // Data Master Integration
+        $promotions = \App\Models\Promotion::where('is_active', true)->get();
+        // $taxRate = \App\Models\Setting::where('key', 'tax_rate')->value('value') ?? 10;
+        $taxes = \App\Models\Tax::where('is_active', true)->orderBy('sort_order')->get();
 
-        return view('pos.pos', compact('products', 'categories'));
+        $loadedOrder = null;
+        if ($request->order_id) {
+            $loadedOrder = Transaction::where('uuid', $request->order_id)
+                ->where('payment_status', 'Unpaid') // Security: Only allow Unpaid orders
+                ->with('items.product')
+                ->first();
+        }
+
+        return view('pos.pos', compact('products', 'categories', 'promotions', 'taxes', 'loadedOrder'));
     }
 
     public function print($uuid)
@@ -53,45 +65,153 @@ class PosController extends Controller
         try {
             // 1. Validasi & Hitung Total di Server (SECURITY AUDIT)
             $cartItems = [];
-            $calculatedTotal = 0;
+            $subtotalCalc = 0;
             $itemsToProcess = [];
 
             foreach ($cart as $item) {
                 $product = Product::find($item['id']);
                 if (!$product) continue;
 
-                $price = $product->price; // Ambil harga dari DB! Jangan dari Request
+                $price = $product->price; // Ambil harga dari DB!
                 $qty = $item['qty'];
-                $subtotal = $price * $qty;
+                $lineTotal = $price * $qty;
                 
-                $calculatedTotal += $subtotal;
+                $subtotalCalc += $lineTotal;
                 
                 $itemsToProcess[] = [
-                    'product_model' => $product, // Simpan model untuk dipakai nanti
+                    'product_model' => $product, 
                     'product_id' => $product->id,
                     'quantity' => $qty,
                     'price' => $price,
-                    'subtotal' => $subtotal
+                    'subtotal' => $lineTotal
                 ];
             }
 
-            // Bisa tambahkan validasi selisih (misal toleransi pembulatan) jika frontend ada diskon
-            // Tapi untuk standar keamanan ketat, kita pakai harga server.
+            // Calculation Logic
+            // Calculation Logic
+            $discountAmount = $request->discount_amount ?? 0; // Nominal
+            $taxEnabled = $request->boolean('tax_enabled', true);
+            $isComplimentary = $request->boolean('is_complimentary', false);
+            
+            // Tax Logic (Multi-Tax)
+            // Fetch latest tax rates to ensure accuracy
+            $activeTaxes = \App\Models\Tax::where('is_active', true)->orderBy('sort_order')->get();
+
+            // 1. Taxable Base
+            $taxableAmount = max(0, $subtotalCalc - $discountAmount);
+
+            // 2. Service Charge Calculation (Type: service_charge) -> Applied on Taxable Base
+            $serviceChargeAmount = 0;
+            $serviceChargeRate = 0;
+
+            if ($taxEnabled) {
+                foreach ($activeTaxes as $tax) {
+                    if ($tax->type === 'service_charge') {
+                        $serviceChargeAmount += $taxableAmount * ($tax->rate / 100);
+                        $serviceChargeRate += $tax->rate;
+                    }
+                }
+            }
+
+            // 3. PB1 / Tax Calculation (Type: tax) -> Applied on (Taxable Base + Service Charge)
+            $taxBase = $taxableAmount + $serviceChargeAmount;
+            $taxAmount = 0;
+            $taxRate = 0;
+
+            if ($taxEnabled) {
+                 foreach ($activeTaxes as $tax) {
+                    if ($tax->type === 'tax') {
+                        $taxAmount += $taxBase * ($tax->rate / 100);
+                        $taxRate += $tax->rate;
+                    }
+                }
+            }
+            
+            // Final Total
+            $grandTotal = $taxBase + $taxAmount;
+
+            if ($isComplimentary) {
+                $grandTotal = 0;
+                $taxAmount = 0; // No tax on free items usually, or company pays it. Assuming 0 for now.
+                $discountAmount = 0; // Reset discount if free
+            }
             
             DB::beginTransaction();
 
-            // 2. Simpan Transaksi Header
-            $transaction = Transaction::create([
-                'invoice_number' => $invoice,
-                'customer_name' => $request->customer_name ?? 'Guest',
-                'type' => 'Dine-in',
-                'total_amount' => $calculatedTotal, // Gunakan Total yang dihitung server
-                'payment_status' => 'Paid',
-                'payment_method' => $request->payment_method,
-            ]);
+            $transaction = null;
+
+            // CHECK IF UPDATING EXISTING TRANSACTION (e.g., Online Order)
+            if ($request->transaction_uuid) {
+                $transaction = Transaction::where('uuid', $request->transaction_uuid)->firstOrFail();
+                $oldInvoice = $transaction->invoice_number;
+                
+                // 1. Clean up Old Data (Items & Journal)
+                $transaction->items()->delete(); // Remove old items (we will re-create from Cart)
+                
+                // Delete Old Journal (if any) to prevent double counting
+                \App\Models\Journal::where('ref_number', $oldInvoice)->delete();
+
+                // 2. Update Header
+                $transaction->update([
+                    'invoice_number' => $invoice, // Update to INV format
+                    'customer_name' => $request->customer_name ?? $transaction->customer_name,
+                    // Keep type as Web-Order or change to Dine-in? Keeping it provides lineage.
+                    // 'type' => 'Dine-in', 
+                    'subtotal_amount' => $subtotalCalc,
+                    'discount_amount' => $discountAmount,
+                    'discount_reason' => $request->discount_reason,
+                    'tax_rate' => $taxEnabled ? $taxRate : 0,
+                    'tax_amount' => $taxAmount,
+                    'service_charge_amount' => $serviceChargeAmount,
+                    'total_amount' => $grandTotal, 
+                    'is_complimentary' => $isComplimentary,
+                    'payment_status' => 'Paid',
+                    'payment_method' => $request->payment_method ?? 'Split',
+                    'notes' => $request->notes
+                ]);
+
+            } else {
+                // CREATE NEW TRANSACTION
+                $transaction = Transaction::create([
+                    'invoice_number' => $invoice,
+                    'customer_name' => $request->customer_name ?? 'Guest',
+                    'type' => 'Dine-in',
+                    'subtotal_amount' => $subtotalCalc,
+                    'discount_amount' => $discountAmount,
+                    'discount_reason' => $request->discount_reason,
+                    'tax_rate' => $taxEnabled ? $taxRate : 0,
+                    'tax_amount' => $taxAmount,
+                    'service_charge_amount' => $serviceChargeAmount,
+                    'total_amount' => $grandTotal, 
+                    'is_complimentary' => $isComplimentary,
+                    'payment_status' => 'Paid',
+                    'payment_method' => $request->payment_method ?? 'Split', // Default to Split or specific if single
+                    'notes' => $request->notes
+                ]);
+            }
+
+            // 2.5 Simpan Detail Pembayaran (Split Payment)
+            $payments = $request->payments ?? []; // Expecting JSON or array: [{method: 'Cash', amount: 50000}, ...]
+            // Fallback for legacy single payment request
+            if (empty($payments) && $request->payment_method) {
+                $payments = [['method' => $request->payment_method, 'amount' => $grandTotal]];
+            } elseif(is_string($payments)) {
+                $payments = json_decode($payments, true);
+            }
+
+            foreach($payments as $pay) {
+                \App\Models\TransactionPayment::create([
+                    'transaction_id' => $transaction->id,
+                    'payment_method' => $pay['method'],
+                    'amount' => $pay['amount'],
+                    'reference_no' => $pay['reference'] ?? null
+                ]);
+            }
 
             // 3. Simpan Item & Kurangi Stok
-            $totalCogs = 0; // Total HPP untuk Jurnal
+            $totalCogs = 0; 
+            $totalCafe = 0;
+            $totalRoastery = 0;
 
             foreach ($itemsToProcess as $item) {
                 $product = $item['product_model'];
@@ -99,15 +219,11 @@ class PosController extends Controller
 
                 // LOGIKA PENGURANGAN STOK & HITUNG HPP
                 if ($product && $product->recipes->count() > 0) {
-                    // Punya Resep: Kurangi Bahan Baku & Hitung HPP dari Bahan
                     foreach ($product->recipes as $recipe) {
                         $recipe->ingredient->decrement('stock', $recipe->amount_needed * $item['quantity']);
-                        
-                        // HPP = Cost Bahan * Jumlah yg dipakai
                         $cogsPerUnit += $recipe->ingredient->cost_price * $recipe->amount_needed;
                     }
                 } else {
-                    // Tidak Punya Resep: Kurangi Stok Produk Langsung & Pakai HPP Produk
                     if ($product) {
                         $product->decrement('stock', $item['quantity']);
                         $cogsPerUnit = $product->cost_price;
@@ -122,84 +238,150 @@ class PosController extends Controller
                     'product_id' => $item['product_id'],
                     'quantity' => $item['quantity'],
                     'price' => $item['price'],
-                    'cost_price' => $cogsPerUnit, // Store HPP saat transaksi
+                    'cost_price' => $cogsPerUnit, 
                     'subtotal' => $item['subtotal'],
                 ]);
+
+                // NOTIFICATION: Low Stock Check
+                // Threshold Hardcoded to 5 for now.
+                if ($product && $product->stock <= 5) {
+                    // Check if already notified recently? For now just fire. 
+                    // To prevent spam, we might want a cache check but simpler is better for "Zero Config".
+                    // Let's rely on Manager clearing it.
+                    $managers = \App\Models\User::whereIn('role', ['manager', 'owner'])->get();
+                    foreach ($managers as $u) {
+                        try {
+                            $u->notify(new \App\Notifications\LowStockNotification($product));
+                        } catch (\Exception $e) {} // Don't break POS if notif fails
+                    }
+                }
+
+                // Split Revenue Calculation (Gross)
+                $isRoastery = false;
+                if ($product->category_id) {
+                     $cat = \App\Models\Category::find($product->category_id);
+                     if ($cat && $cat->type === 'roastery') $isRoastery = true;
+                } elseif ($product->category == 'roast_bean') {
+                     $isRoastery = true;
+                }
+
+                if ($isRoastery) $totalRoastery += $item['subtotal'];
+                else $totalCafe += $item['subtotal'];
             }
 
             // 4. JURNAL OTOMATIS
             $journalId = DB::table('journals')->insertGetId([
                 'ref_number' => $invoice, 
                 'transaction_date' => now(),
-                'description' => 'Penjualan POS: ' . $invoice,
-                'total_debit' => $calculatedTotal,
-                'total_credit' => $calculatedTotal,
-                'created_at' => now(), 
-                'updated_at' => now(),
-            ]);
-
-            // Debit Kas (ID 2)
-            DB::table('journal_details')->insert([
-                'journal_id' => $journalId,
-                'account_id' => 2, 
-                'debit' => $calculatedTotal, 'credit' => 0,
+                'description' => 'Penjualan POS: ' . $invoice . ($isComplimentary ? ' (Complimentary)' : ''),
+                'total_debit' => $grandTotal,
+                'total_credit' => $grandTotal,
                 'created_at' => now(), 'updated_at' => now(),
             ]);
 
-            // HITUNG SPLIT PENDAPATAN
-            $totalCafe = 0;
-            $totalRoastery = 0;
+            if ($isComplimentary) {
+                // CASE: COMPLIMENTARY (Expense Promotion)
+                if ($totalCogs > 0) {
+                    $promoAcc = DB::table('chart_of_accounts')->where('code', '5-102')->value('id'); // Beban Promosi
+                    $invAcc = 1; // Persediaan
 
-            foreach ($itemsToProcess as $item) {
-                // Ambil Produk untuk cek kategori
-                $prod = $item['product_model'];
-                if ($prod->category == 'roast_bean') {
-                    $totalRoastery += $item['subtotal'];
-                } else {
-                    $totalCafe += $item['subtotal'];
+                    if ($promoAcc) {
+                        DB::table('journal_details')->insert([
+                            ['journal_id' => $journalId, 'account_id' => $promoAcc, 'debit' => $totalCogs, 'credit' => 0, 'created_at' => now(), 'updated_at' => now()],
+                            ['journal_id' => $journalId, 'account_id' => $invAcc, 'debit' => 0, 'credit' => $totalCogs, 'created_at' => now(), 'updated_at' => now()]
+                        ]);
+                    }
                 }
-            }
 
-            // Kredit Pendapatan Cafe (ID 4)
-            if ($totalCafe > 0) {
-                DB::table('journal_details')->insert([
-                    'journal_id' => $journalId,
-                    'account_id' => 4, // Penjualan Cafe
-                    'debit' => 0, 'credit' => $totalCafe,
-                    'created_at' => now(), 'updated_at' => now(),
-                ]);
-            }
+            } else {
+                // CASE: NORMAL SALE (Split Revenue & Payment)
+                
+                // 1. Debit Cash/Bank (Iterate Payments)
+                // Map Payment Methods to Accounts:
+                // Cash -> 2 (Kas)
+                // QRIS, Transfer, Debit -> 3? (Bank) - Assuming 3 or fallback to 2
+                // We will default to 2 for now but try to differentiate if needed.
+                // Assuming 'Kas' ID=2 is generic Cash/Bank
+                
+                foreach($payments as $pay) {
+                    $accId = 2; // Default Kas
+                    // Simple logic for future expansion:
+                    // if ($pay['method'] == 'QRIS' || $pay['method'] == 'Transfer') $accId = 3; 
 
-            // Kredit Pendapatan Roastery (ID 5)
-            if ($totalRoastery > 0) {
-                DB::table('journal_details')->insert([
-                    'journal_id' => $journalId,
-                    'account_id' => 5, // Penjualan Roastery (Baru)
-                    'debit' => 0, 'credit' => $totalRoastery,
-                    'created_at' => now(), 'updated_at' => now(),
-                ]);
-            }
-
-            // 5. JURNAL HPP (COGS)
-            if ($totalCogs > 0) {
-                // Debit Beban Pokok Penjualan (5-101)
-                $cogsAccountId = DB::table('chart_of_accounts')->where('code', '5-101')->value('id');
-                if ($cogsAccountId) {
                     DB::table('journal_details')->insert([
                         'journal_id' => $journalId,
-                        'account_id' => $cogsAccountId,
-                        'debit' => $totalCogs, 'credit' => 0,
+                        'account_id' => $accId,
+                        'debit' => $pay['amount'], 'credit' => 0,
                         'created_at' => now(), 'updated_at' => now(),
                     ]);
+                }
 
-                    // Kredit Persediaan (1-101) - Assumed Single Inventory Account for Simplicity
-                    // In complex system, this might be split by category asset accounts
+                // 2. Debit Potongan Penjualan (Jika ada diskon)
+                if ($discountAmount > 0) {
+                    $discAcc = DB::table('chart_of_accounts')->where('code', '4-102')->value('id');
+                    if ($discAcc) {
+                        DB::table('journal_details')->insert([
+                            'journal_id' => $journalId,
+                            'account_id' => $discAcc,
+                            'debit' => $discountAmount, 'credit' => 0,
+                            'created_at' => now(), 'updated_at' => now(),
+                        ]);
+                    }
+                }
+
+                // 3. Kredit Pendapatan (Gross)
+                if ($totalCafe > 0) {
                     DB::table('journal_details')->insert([
-                        'journal_id' => $journalId,
-                        'account_id' => 1, // Persediaan Bahan Baku (Default)
-                        'debit' => 0, 'credit' => $totalCogs,
-                        'created_at' => now(), 'updated_at' => now(),
+                        'journal_id' => $journalId, 'account_id' => 4, // Pendapatan Cafe
+                        'debit' => 0, 'credit' => $totalCafe, 'created_at' => now(), 'updated_at' => now(),
                     ]);
+                }
+                if ($totalRoastery > 0) {
+                    DB::table('journal_details')->insert([
+                        'journal_id' => $journalId, 'account_id' => 5, // Pendapatan Roastery
+                        'debit' => 0, 'credit' => $totalRoastery, 'created_at' => now(), 'updated_at' => now(),
+                    ]);
+                }
+
+                // 3.5. Kredit Service Charge Payable
+                if ($serviceChargeAmount > 0) {
+                     // Need a Service Charge Account ID.
+                     // Mapping: 4-xxx (Revenue) or 2-xxx (Liability/Payable).
+                     // Ideally we have a dedicated account.
+                     // Let's check for 'Service Charge' account or fallback to 'Pendapatan Lain-lain' (4-200) or similar.
+                    
+                    // For now, we will try to find 'Service Charge' account, else 'Pendapatan Service'
+                    $svcAcc = DB::table('chart_of_accounts')->where('name', 'like', '%Service%')->value('id');
+                    if (!$svcAcc) $svcAcc = 5; // Fallback to Roastery Income temporarily or maybe ID 6 (Other Income)
+                    
+                    if ($svcAcc) {
+                         DB::table('journal_details')->insert([
+                            'journal_id' => $journalId, 'account_id' => $svcAcc,
+                            'debit' => 0, 'credit' => $serviceChargeAmount, 'created_at' => now(), 'updated_at' => now(),
+                        ]);
+                    }
+                }
+
+                // 4. Kredit Hutang Pajak (PB1)
+                if ($taxAmount > 0) {
+                    $taxAcc = DB::table('chart_of_accounts')->where('code', '2-102')->value('id');
+                    if ($taxAcc) {
+                        DB::table('journal_details')->insert([
+                            'journal_id' => $journalId, 'account_id' => $taxAcc,
+                            'debit' => 0, 'credit' => $taxAmount, 'created_at' => now(), 'updated_at' => now(),
+                        ]);
+                    }
+                }
+
+                // 5. Jurnal COGS (Debit HPP, Kredit Persediaan)
+                if ($totalCogs > 0) {
+                    $cogsAccountId = DB::table('chart_of_accounts')->where('code', '5-101')->value('id');
+                    if ($cogsAccountId) {
+                        DB::table('journal_details')->insert([
+                            ['journal_id' => $journalId, 'account_id' => $cogsAccountId, 'debit' => $totalCogs, 'credit' => 0, 'created_at' => now(), 'updated_at' => now()],
+                            ['journal_id' => $journalId, 'account_id' => 1, 'debit' => 0, 'credit' => $totalCogs, 'created_at' => now(), 'updated_at' => now()]
+                        ]);
+                    }
                 }
             }
 

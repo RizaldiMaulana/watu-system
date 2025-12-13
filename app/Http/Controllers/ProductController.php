@@ -25,9 +25,11 @@ class ProductController extends Controller
     }
 
     // 2. TAMPILKAN FORM TAMBAH
+    // 2. TAMPILKAN FORM TAMBAH
     public function create()
     {
-        return view('products.create');
+        $categories = \App\Models\Category::orderBy('sort_order')->get();
+        return view('products.create', compact('categories'));
     }
 
     // 3. SIMPAN DATA BARU
@@ -36,19 +38,29 @@ class ProductController extends Controller
         $validated = $request->validate([
             'code' => 'nullable|unique:products,code',
             'name' => 'required|string|max:255',
-            'category' => 'required',
-            'varietal' => 'nullable|string|max:100', // Tambahan
+            'category_id' => 'required|exists:categories,id', // Ganti category string ke ID
             'process' => 'nullable|string|max:100',  // Tambahan
             'price' => 'required|numeric',
+            'cost_price' => 'nullable|numeric', // Tambahan HPP
             'stock' => 'required|integer',
             'unit' => 'required|string',
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'options' => 'nullable|array', // Validasi Array
         ]);
 
         // Upload Gambar
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('products', 'public');
+        }
+
+        // Ambil slug dari kategori untuk backward compatibility (kolom category lama)
+        $category = \App\Models\Category::find($validated['category_id']);
+        $validated['category'] = $category->slug;
+
+        // Ensure options is set (sometimes empty array comes as null if using some FE libs, but checking validates)
+        if ($request->has('options')) {
+            $validated['options'] = array_values($request->options); // Reindex array just in case
         }
 
         Product::create($validated);
@@ -62,12 +74,14 @@ class ProductController extends Controller
         $validated = $request->validate([
             'code' => 'nullable|unique:products,code,' . $product->id,
             'name' => 'required|string|max:255',
-            'category' => 'required',
+            'category_id' => 'required|exists:categories,id',
             'price' => 'required|numeric',
+            'cost_price' => 'nullable|numeric', // Tambahan HPP
             'stock' => 'required|integer',
             'unit' => 'required|string',
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'options' => 'nullable|array',
         ]);
 
         // Cek jika ada gambar baru diupload
@@ -78,6 +92,13 @@ class ProductController extends Controller
             }
             $validated['image'] = $request->file('image')->store('products', 'public');
         }
+        
+        // Sync legacy category column
+        $category = \App\Models\Category::find($validated['category_id']);
+        $validated['category'] = $category->slug;
+
+        // Reset options if not provided (means removed all) or update
+        $validated['options'] = $request->has('options') ? array_values($request->options) : null;
 
         $product->update($validated);
 
@@ -87,7 +108,8 @@ class ProductController extends Controller
     // 4. TAMPILKAN FORM EDIT
     public function edit(Product $product)
     {
-        return view('products.edit', compact('product'));
+        $categories = \App\Models\Category::orderBy('sort_order')->get();
+        return view('products.edit', compact('product', 'categories'));
     }
 
     // 6. HAPUS DATA

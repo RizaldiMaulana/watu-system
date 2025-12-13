@@ -765,14 +765,16 @@ label {
 
 .menu-category-title {
     font-family: 'Playfair Display', serif;
-    color: var(--color-olive);
-    font-weight: 700;
-    font-size: 28px;
-    margin-bottom: 40px;
+    color: var(--color-olive-dark);
+    font-weight: 800;
+    font-size: 42px;
+    margin-bottom: 50px;
     text-transform: uppercase;
-    border-bottom: 2px solid #f0f0f0;
-    padding-bottom: 10px;
+    letter-spacing: 2px;
+    border-bottom: 3px solid var(--color-olive);
+    padding-bottom: 15px;
     display: inline-block;
+    position: relative;
     animation: fadeInUp 0.6s ease;
 }
 
@@ -800,6 +802,175 @@ label {
     z-index: 2;
     transition: color var(--transition-base);
 }
+
+/* Mobile Responsive Fixes (Updated) */
+@media (max-width: 991px) {
+
+    /* Header & Navbar */
+    .header {
+        padding: 5px 0;
+        /* Tighter header */
+    }
+
+    .navbar-brand {
+        gap: 10px;
+        max-width: 75%;
+        /* Leave room for toggler */
+    }
+
+    .navbar-brand img {
+        width: 35px !important;
+        /* Smaller logo */
+    }
+
+    .navbar-brand span {
+        font-size: 16px !important;
+        /* Smaller text */
+        line-height: 1.2;
+        white-space: normal;
+        display: block;
+    }
+
+    .navbar-toggler {
+        padding: 4px 8px;
+        /* Smaller button */
+        font-size: 0.9rem;
+    }
+
+    /* Hero */
+    .hero-section {
+        padding-top: 100px;
+        /* Adjust for fixed header */
+        min-height: auto;
+        padding-bottom: 50px;
+    }
+
+    .hero-img {
+        width: 100%;
+        height: 250px;
+        /* Constrain height */
+        object-fit: cover;
+        border-radius: 15px;
+        margin-top: 20px;
+    }
+
+    .hero-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        width: 100%;
+    }
+
+    .hero-buttons .btn {
+        width: 100%;
+        margin: 0 !important;
+        justify-content: center;
+    }
+
+    /* Menu & Order Page */
+    .page-header {
+        padding-top: 100px;
+        padding-bottom: 30px;
+    }
+
+    .page-header h1 {
+        font-size: 2.5rem;
+    }
+
+    .menu-section {
+        padding: 15px;
+        /* Clean padding */
+        border-radius: 15px;
+        margin-top: 20px;
+    }
+
+    .menu-item-row {
+        flex-wrap: nowrap;
+        padding: 10px 0;
+    }
+
+    /* Fix Qty Buttons - Better Visibility */
+    .btn-qty-minus,
+    .btn-qty-plus {
+        width: 32px !important;
+        height: 32px !important;
+        min-width: 32px !important;
+        border-radius: 50% !important;
+        padding: 0 !important;
+        flex-shrink: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-weight: bold;
+        font-size: 16px !important;
+        /* Larger text/icon */
+        line-height: 1;
+    }
+
+    .btn-qty-minus i,
+    .btn-qty-plus i {
+        font-size: 12px !important;
+        /* Force icon size */
+    }
+
+    .btn-qty-minus {
+        background: #fff !important;
+        border: 1px solid #ddd !important;
+        color: #333 !important;
+        /* Dark gray text */
+    }
+
+    .btn-qty-plus {
+        background: var(--color-olive) !important;
+        color: #fff !important;
+        /* White text */
+    }
+
+    .qty-input {
+        width: 40px !important;
+        height: 32px !important;
+        font-size: 16px !important;
+        /* Prevent zoom */
+        font-weight: bold !important;
+        color: #000 !important;
+    }
+
+    /* Center content better - Remove negative margins */
+    .container {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    /* Mobile Horizontal Slider */
+    .mobile-snap-scroll {
+        display: flex;
+        gap: 15px;
+        padding-left: 5px;
+        padding-right: 5px;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .mobile-snap-scroll>.col-lg-4 {
+        flex: 0 0 85%;
+        /* Show 85% of card to encourage scroll */
+        max-width: 85%;
+        scroll-snap-align: center;
+    }
+}
+
+/* Fix Reservation Input Visibility Global */
+.form-control,
+.form-control-dark {
+    color: #333 !important;
+    /* Ensure text is dark */
+    background-color: #fff !important;
+}
+
+.form-control::placeholder {
+    color: #999 !important;
+}
+
 
 .menu-item-row:hover .menu-item-name {
     color: var(--color-olive);
@@ -1068,12 +1239,26 @@ input[type=number] {
         padding: 60px 0;
     }
 
-    /* Hero Section Mobile */
+    /* Hero Section Mobile/Tablet */
     .hero-section {
         padding-top: 100px;
         min-height: auto;
         padding-bottom: 40px;
     }
+
+    .hero-img {
+        width: 100%;
+        height: auto;
+        max-height: 350px;
+        /* Limit height on tablet/mobile */
+        object-fit: contain;
+        /* Show wider image without cropping if possible, or use cover with better position */
+        object-position: center;
+        border-radius: 15px;
+        margin-top: 20px;
+        box-shadow: var(--shadow-md);
+    }
+
 
     .hero-text {
         text-align: center;
@@ -1106,253 +1291,176 @@ input[type=number] {
     }
 }
 
-/* Mobile-specific improvements */
-@media (max-width: 767px) {
+/* Button improvements */
+.btn-watu-primary,
+.btn-watu-outline {
+    padding: 14px 30px;
+    font-size: 14px;
+    width: 100%;
+    max-width: 280px;
+}
 
-    /* Typography optimizations */
-    body {
-        font-size: 14px;
-    }
+.btn-watu-gold {
+    padding: 14px 30px;
+    font-size: 14px;
+}
 
-    h1,
-    .display-3 {
-        font-size: 2.2rem !important;
-        line-height: 1.2;
-    }
+/* Page header */
+.page-header {
+    padding-top: 110px;
+    padding-bottom: 40px;
+}
 
-    h2,
-    .display-4 {
-        font-size: 1.8rem !important;
-    }
+.page-header h1 {
+    font-size: 2rem !important;
+}
 
-    h3,
-    .display-5 {
-        font-size: 1.5rem !important;
-    }
+.page-header h6 {
+    font-size: 11px;
+}
 
-    .lead {
-        font-size: 15px !important;
-    }
+/* Navigation pills/tabs */
+.nav-pills {
+    flex-wrap: wrap;
+    justify-content: center;
+}
 
-    /* Touch targets */
-    button,
-    a.btn,
-    .nav-link {
-        min-height: 44px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-    }
+.nav-pills .nav-link {
+    font-size: 14px;
+    margin: 5px 8px;
+    padding: 8px 4px;
+    min-width: 80px;
+    text-align: center;
+}
 
-    /* Header improvements */
-    .header {
-        padding: 10px 0;
-    }
+/* Menu section */
+.menu-section {
+    padding: 25px 15px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+}
 
-    .navbar-brand img {
-        width: 45px;
-    }
+.menu-category-title {
+    font-size: 22px;
+    margin-bottom: 25px;
+}
 
-    .navbar-brand span {
-        font-size: 18px;
-    }
+.menu-item-row {
+    flex-wrap: wrap;
+    padding: 10px 5px;
+}
 
-    /* Hero Section */
-    .hero-section {
-        padding-top: 90px;
-        padding-bottom: 30px;
-    }
+.menu-item-name {
+    font-size: 14px;
+    flex: 1 1 100%;
+    margin-bottom: 5px;
+}
 
-    .hero-text h1 {
-        font-size: 2rem !important;
-        margin-bottom: 20px !important;
-    }
+.menu-item-dots {
+    display: none;
+}
 
-    .hero-text h5 {
-        font-size: 11px;
-        margin-bottom: 15px !important;
-    }
+.menu-item-price {
+    font-size: 15px;
+    padding-left: 0;
+}
 
-    .hero-text p {
-        font-size: 14px !important;
-        margin-bottom: 30px !important;
-    }
+.menu-item-desc {
+    padding-left: 0;
+    font-size: 12px;
+    margin-bottom: 20px;
+}
 
-    .hero-img {
-        max-height: 300px;
-        margin-top: 30px;
-    }
+.qty-input {
+    width: 55px;
+    height: 44px;
+    font-size: 15px;
+}
 
-    /* Button improvements */
-    .btn-watu-primary,
-    .btn-watu-outline {
-        padding: 14px 30px;
-        font-size: 14px;
-        width: 100%;
-        max-width: 280px;
-    }
+/* Beans table mobile */
+.beans-table {
+    font-size: 13px;
+}
 
-    .btn-watu-gold {
-        padding: 14px 30px;
-        font-size: 14px;
-    }
+.beans-table th,
+.beans-table td {
+    padding: 10px 8px;
+}
 
-    /* Page header */
-    .page-header {
-        padding-top: 110px;
-        padding-bottom: 40px;
-    }
+.beans-table th {
+    font-size: 12px;
+}
 
-    .page-header h1 {
-        font-size: 2rem !important;
-    }
+/* Form improvements */
+.form-card {
+    padding: 25px 20px;
+    border-radius: 15px;
+}
 
-    .page-header h6 {
-        font-size: 11px;
-    }
+.form-card h5 {
+    font-size: 1.3rem;
+}
 
-    /* Navigation pills/tabs */
-    .nav-pills {
-        flex-wrap: wrap;
-        justify-content: center;
-    }
+.form-control,
+.form-select {
+    padding: 14px;
+    font-size: 15px;
+    border-radius: 10px !important;
+}
 
-    .nav-pills .nav-link {
-        font-size: 14px;
-        margin: 5px 8px;
-        padding: 8px 4px;
-        min-width: 80px;
-        text-align: center;
-    }
+/* Payment options */
+.payment-box {
+    padding: 15px;
+}
 
-    /* Menu section */
-    .menu-section {
-        padding: 25px 15px;
-        border-radius: 15px;
-        margin-bottom: 30px;
-    }
+.payment-option {
+    padding: 12px 8px !important;
+    min-height: 70px;
+}
 
-    .menu-category-title {
-        font-size: 22px;
-        margin-bottom: 25px;
-    }
+.payment-option i {
+    font-size: 18px !important;
+}
 
-    .menu-item-row {
-        flex-wrap: wrap;
-        padding: 10px 5px;
-    }
+.payment-option .small {
+    font-size: 11px !important;
+}
 
-    .menu-item-name {
-        font-size: 14px;
-        flex: 1 1 100%;
-        margin-bottom: 5px;
-    }
+/* Reservation box */
+.reservation-box {
+    padding: 30px 20px;
+    border-radius: 15px;
+}
 
-    .menu-item-dots {
-        display: none;
-    }
+.reservation-box h3 {
+    font-size: 1.5rem;
+}
 
-    .menu-item-price {
-        font-size: 15px;
-        padding-left: 0;
-    }
+.form-control-dark {
+    padding: 14px;
+    font-size: 15px;
+}
 
-    .menu-item-desc {
-        padding-left: 0;
-        font-size: 12px;
-        margin-bottom: 20px;
-    }
+/* Footer */
+.footer {
+    padding: 40px 0;
+}
 
-    .qty-input {
-        width: 55px;
-        height: 44px;
-        font-size: 15px;
-    }
+.footer img {
+    width: 80px !important;
+    margin-bottom: 15px !important;
+}
 
-    /* Beans table mobile */
-    .beans-table {
-        font-size: 13px;
-    }
+/* Section padding */
+.section-padding {
+    padding: 50px 0;
+}
 
-    .beans-table th,
-    .beans-table td {
-        padding: 10px 8px;
-    }
-
-    .beans-table th {
-        font-size: 12px;
-    }
-
-    /* Form improvements */
-    .form-card {
-        padding: 25px 20px;
-        border-radius: 15px;
-    }
-
-    .form-card h5 {
-        font-size: 1.3rem;
-    }
-
-    .form-control,
-    .form-select {
-        padding: 14px;
-        font-size: 15px;
-        border-radius: 10px !important;
-    }
-
-    /* Payment options */
-    .payment-box {
-        padding: 15px;
-    }
-
-    .payment-option {
-        padding: 12px 8px !important;
-        min-height: 70px;
-    }
-
-    .payment-option i {
-        font-size: 18px !important;
-    }
-
-    .payment-option .small {
-        font-size: 11px !important;
-    }
-
-    /* Reservation box */
-    .reservation-box {
-        padding: 30px 20px;
-        border-radius: 15px;
-    }
-
-    .reservation-box h3 {
-        font-size: 1.5rem;
-    }
-
-    .form-control-dark {
-        padding: 14px;
-        font-size: 15px;
-    }
-
-    /* Footer */
-    .footer {
-        padding: 40px 0;
-    }
-
-    .footer img {
-        width: 80px !important;
-        margin-bottom: 15px !important;
-    }
-
-    /* Section padding */
-    .section-padding {
-        padding: 50px 0;
-    }
-
-    /* About section */
-    .arca-illustration {
-        max-height: 350px;
-        margin-bottom: 30px;
-    }
+/* About section */
+.arca-illustration {
+    max-height: 350px;
+    margin-bottom: 30px;
+}
 }
 
 /* Extra small devices */
@@ -1473,7 +1581,21 @@ input[type=number] {
 .row {
     max-width: 100%;
     overflow-x: hidden;
+    margin-left: auto;
+    margin-right: auto;
 }
+
+@media (min-width: 1200px) {
+    .container {
+        max-width: 1140px !important;
+        /* Standard Bootstrap Width */
+        margin-left: auto !important;
+        margin-right: auto !important;
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+}
+
 
 /* Better focus states */
 *:focus-visible {
@@ -1494,4 +1616,35 @@ body.loading {
 body.loaded {
     opacity: 1;
     transition: opacity 0.5s ease;
+}
+
+/* FORCED DESKTOP MENU RESTORATION */
+@media (min-width: 992px) {
+    .navbar-collapse {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+
+    .navbar-nav {
+        flex-direction: row !important;
+    }
+
+    .nav-item {
+        margin-left: 20px;
+    }
+
+    .nav-link {
+        opacity: 1 !important;
+        color: var(--color-dark) !important;
+        display: block !important;
+        padding: 10px 15px !important;
+    }
+
+    /* Ensure button is hidden on desktop */
+    .navbar-toggler {
+        display: none !important;
+    }
 }

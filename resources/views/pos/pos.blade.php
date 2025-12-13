@@ -79,7 +79,7 @@
                 <div class="flex-1 flex gap-2 overflow-x-auto no-scrollbar py-2">
                     <button @click="filterCategory('all')" :class="selectedCategory === 'all' ? 'bg-[#5f674d] text-white shadow-md' : 'bg-white text-gray-500 hover:text-[#5f674d] shadow-sm'" class="px-5 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all">Semua</button>
                     @foreach($categories as $cat)
-                    <button @click="filterCategory('{{ $cat }}')" :class="selectedCategory === '{{ $cat }}' ? 'bg-[#5f674d] text-white shadow-md' : 'bg-white text-gray-500 hover:text-[#5f674d] shadow-sm'" class="px-5 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all capitalize">{{ str_replace('_', ' ', $cat) }}</button>
+                    <button @click="filterCategory({{ $cat->id }})" :class="selectedCategory === {{ $cat->id }} ? 'bg-[#5f674d] text-white shadow-md' : 'bg-white text-gray-500 hover:text-[#5f674d] shadow-sm'" class="px-5 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all capitalize">{{ $cat->name }}</button>
                     @endforeach
                 </div>
                 <div class="w-64 relative">
@@ -128,72 +128,263 @@
                     <button @click="showPaymentModal = false" class="hover:bg-white/20 p-1 rounded-full"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
                 </div>
 
-                <div class="p-8">
+                <div class="p-8 max-h-[80vh] overflow-y-auto">
+                    <!-- Advanced Sales Options -->
+                    <div class="mb-6 space-y-4 border-b border-gray-100 pb-6">
+                        <div class="flex gap-4">
+                            <!-- Discount Selection -->
+                            <div class="flex-1">
+                                <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Promo / Diskon</label>
+                                <select x-model="selectedPromotionId" @change="applyPromotion()" class="w-full rounded-lg border-gray-300 text-sm focus:ring-[#5f674d]">
+                                    <option value="">-- Tidak Ada Promo --</option>
+                                    <template x-for="promo in promotions" :key="promo.id">
+                                        <option :value="promo.id" x-text="promo.name + ' (' + (promo.type === 'percentage' ? promo.value + '%' : 'Rp ' + Number(promo.value).toLocaleString('id-ID')) + ')'"></option>
+                                    </template>
+                                </select>
+                                <div x-show="discountAmount > 0" class="text-xs text-green-600 mt-1 font-bold">
+                                    Potongan: Rp <span x-text="formatRupiah(discountAmount)"></span>
+                                </div>
+                            </div>
+                            
+                            <!-- Taxes & Charges Info -->
+                            <div class="flex flex-col gap-2 pt-6">
+                                <div class="flex items-center gap-2">
+                                    <input type="checkbox" id="tax" x-model="taxEnabled" class="rounded text-[#5f674d] focus:ring-[#5f674d]">
+                                    <label for="tax" class="text-sm font-bold text-gray-700 select-none">Aktifkan Pajak & Layanan</label>
+                                </div>
+                                
+                                <template x-if="taxEnabled">
+                                    <div class="pl-6 text-xs text-gray-500 space-y-1">
+                                        <template x-for="tax in activeTaxes" :key="tax.id">
+                                            <div class="flex justify-between">
+                                                <span x-text="tax.name + ' (' + tax.rate + '%)'"></span>
+                                                <span x-text="formatRupiah(calculateTaxAmount(tax))"></span>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+
+                         <div class="flex gap-4 items-center">
+                            <!-- Complimentary Toggle -->
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" id="comp" x-model="isComplimentary" @change="if(isComplimentary) { discountAmount=0; selectedPromotionId=''; }" class="rounded text-purple-600 focus:ring-purple-600">
+                                <label for="comp" class="text-sm font-bold text-purple-700 select-none">Complimentary (Gratis)</label>
+                            </div>
+                             <!-- Notes -->
+                            <div class="flex-1">
+                                <input type="text" x-model="notes" placeholder="Catatan Transaksi..." class="w-full rounded-lg border-gray-300 text-sm focus:ring-[#5f674d]">
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="text-center mb-8">
                         <p class="text-gray-400 text-xs uppercase font-bold mb-1">Total Harus Dibayar</p>
                         <h2 class="text-5xl font-black text-[#2b2623]" x-text="formatRupiah(total)"></h2>
+                        <div x-show="taxEnabled" class="text-xs text-gray-400 mt-1">Termasuk Pajak</div>
                     </div>
 
-                    <div class="grid grid-cols-3 gap-4 mb-8">
-                        <button @click="paymentMethod = 'Cash'; payAmount = 0" :class="paymentMethod === 'Cash' ? 'bg-[#5f674d]/10 border-[#5f674d] text-[#5f674d] ring-2 ring-[#5f674d]' : 'border-gray-200 text-gray-400'" class="flex flex-col items-center justify-center py-4 border-2 rounded-xl transition-all font-bold text-xs uppercase"><span>💵 Tunai</span></button>
-                        <button @click="paymentMethod = 'QRIS'; payAmount = total" :class="paymentMethod === 'QRIS' ? 'bg-[#5f674d]/10 border-[#5f674d] text-[#5f674d] ring-2 ring-[#5f674d]' : 'border-gray-200 text-gray-400'" class="flex flex-col items-center justify-center py-4 border-2 rounded-xl transition-all font-bold text-xs uppercase"><span>📱 QRIS</span></button>
-                        <button @click="paymentMethod = 'Debit'; payAmount = total" :class="paymentMethod === 'Debit' ? 'bg-[#5f674d]/10 border-[#5f674d] text-[#5f674d] ring-2 ring-[#5f674d]' : 'border-gray-200 text-gray-400'" class="flex flex-col items-center justify-center py-4 border-2 rounded-xl transition-all font-bold text-xs uppercase"><span>💳 Debit</span></button>
+                    <div class="mb-6 space-y-3">
+                        <template x-for="(payment, index) in payments" :key="index">
+                            <div class="flex gap-2 items-end">
+                                <div class="w-1/3">
+                                    <label class="block text-xs text-gray-400 mb-1" x-show="index===0">Metode</label>
+                                    <select x-model="payment.method" class="w-full rounded-lg border-gray-300 text-sm focus:ring-[#5f674d]">
+                                        <option value="Cash">Tunai</option>
+                                        <option value="QRIS">QRIS</option>
+                                        <option value="Debit">Debit</option>
+                                        <option value="Transfer">Transfer</option>
+                                    </select>
+                                </div>
+                                <div class="flex-1">
+                                    <label class="block text-xs text-gray-400 mb-1" x-show="index===0">Nominal</label>
+                                    <input type="number" x-model="payment.amount" class="w-full rounded-lg border-gray-300 text-sm font-bold focus:ring-[#5f674d]">
+                                </div>
+                                <div>
+                                    <button @click="removePayment(index)" class="p-2 text-red-500 hover:bg-red-50 rounded-lg h-[42px] w-[42px] flex items-center justify-center border border-transparent hover:border-red-200" x-show="payments.length > 1">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
+                        
+                         <button @click="addPayment()" class="text-sm text-[#5f674d] font-bold hover:underline py-2">+ Tambah Pembayaran</button>
                     </div>
 
-                    <div x-show="paymentMethod === 'Cash'" class="mb-8 bg-gray-50 p-5 rounded-xl border border-gray-200">
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Uang Diterima</label>
-                        <div class="relative">
-                            <span class="absolute left-4 top-4 font-bold text-gray-400">Rp</span>
-                            <input type="number" x-model="payAmount" class="w-full pl-12 pr-4 py-3.5 rounded-xl border-gray-300 focus:ring-[#5f674d] text-xl font-bold text-gray-800 shadow-sm" placeholder="0">
+                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 mb-6">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-gray-500 text-sm">Total Bayar</span>
+                            <span class="font-bold text-lg" x-text="formatRupiah(totalPaid)"></span>
                         </div>
-                        <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-200">
-                            <span class="text-sm font-bold text-gray-500">Kembalian</span>
-                            <span class="text-xl font-black" :class="payAmount - total < 0 ? 'text-red-500' : 'text-green-600'" x-text="formatRupiah(payAmount - total)"></span>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-gray-500" x-text="remainingDue > 0 ? 'Kurang Bayar' : 'Kembalian'"></span>
+                            <span class="font-bold" :class="remainingDue > 0 ? 'text-red-600' : 'text-green-600'" x-text="remainingDue > 0 ? formatRupiah(remainingDue) : formatRupiah(changeAmount)"></span>
                         </div>
                     </div>
 
-                    <button @click="processPayment()" :disabled="paymentMethod === 'Cash' && payAmount < total" class="w-full py-4 text-white font-bold text-lg rounded-xl transition-all flex justify-center items-center gap-2" :class="(paymentMethod === 'Cash' && payAmount < total) ? 'bg-gray-300' : 'bg-[#5f674d] hover:bg-[#4b523d] shadow-xl'">
-                        <span>Selesaikan Transaksi</span>
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                    </button>
+                    <div class="mt-6">
+                        <button @click="processPayment()" 
+                                :disabled="remainingDue > 0" 
+                                class="w-full py-4 text-white font-bold text-lg rounded-xl transition-all flex justify-center items-center gap-2 shadow-xl"
+                                :class="remainingDue > 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#5f674d] hover:bg-[#4b523d]'">
+                            <span>Selesaikan Transaksi</span>
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </template>
     
-        </div>
-    </template>
     </div>
 
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.data('posSystem', () => ({
                 products: {{ \Illuminate\Support\Js::from($products) }},
+                promotions: {{ \Illuminate\Support\Js::from($promotions) }},
+
+                // Pricing States
                 search: '', 
                 selectedCategory: 'all', 
                 cart: [], 
                 showPaymentModal: false, 
-                paymentMethod: 'Cash', 
-                payAmount: 0,
+                
+                // Split Payment State
+                payments: [], // [{method: 'Cash', amount: 0, reference: ''}]
+                
+                taxes: {{ \Illuminate\Support\Js::from($taxes) }},
+                taxEnabled: true,
+                discountAmount: 0,
+                selectedPromotionId: '',
+                isComplimentary: false,
+                notes: '',
+                customerName: 'Walk-in Customer',
+                transactionUuid: '', // New state for existing transaction
                 
                 showToast(title, message, type = 'success') {
                     this.$dispatch('notify', { title, message, type });
                 },
                 
-                get filteredProducts() {
-                    return this.products.filter(p => (this.selectedCategory === 'all' || p.category === this.selectedCategory) && p.name.toLowerCase().includes(this.search.toLowerCase()));
-                },
-                get total() { 
-                    return this.cart.reduce((sum, item) => sum + (item.price * item.qty), 0); 
-                },
-                
                 init() {
+                    // Check if order data is passed from controller
+                    let loadedOrder = {{ \Illuminate\Support\Js::from($loadedOrder ?? null) }};
+                    if (loadedOrder) {
+                        this.transactionUuid = loadedOrder.uuid;
+                        this.customerName = loadedOrder.customer_name;
+                        this.notes = loadedOrder.notes ?? '';
+                        
+                        // Map items to cart
+                        if (loadedOrder.items) {
+                            this.cart = loadedOrder.items.map(item => ({
+                                id: item.product_id,
+                                name: item.product ? item.product.name : 'Unknown Product',
+                                price: Number(item.price),
+                                qty: Number(item.quantity)
+                            }));
+                        }
+                    }
+
                     this.$watch('cart', () => {
-                        // Reset payment amount when cart changes if needed
+                        // Watch logic if needed
                     });
                 },
 
                 filterCategory(cat) { this.selectedCategory = cat; },
+                
+                get filteredProducts() {
+                    return this.products.filter(p => (this.selectedCategory === 'all' || p.category_id === this.selectedCategory) && p.name.toLowerCase().includes(this.search.toLowerCase()));
+                },
+                
+                get subtotal() {
+                     return this.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+                },
+                
+                get activeTaxes() {
+                    return this.taxes.filter(t => t.is_active);
+                },
+
+                calculateTaxAmount(tax) {
+                    let base = Math.max(0, this.subtotal - this.discountAmount);
+                    if (tax.type === 'service_charge') {
+                        return base * (tax.rate / 100);
+                    } else if (tax.type === 'tax') {
+                        // PB1 is calculated on (Base + Service Charge)
+                        let serviceCharge = this.activeTaxes
+                            .filter(t => t.type === 'service_charge')
+                            .reduce((sum, t) => sum + (base * (t.rate / 100)), 0);
+                        return (base + serviceCharge) * (tax.rate / 100);
+                    }
+                    return 0;
+                },
+
+                get total() { 
+                    if (this.isComplimentary) return 0;
+                    
+                    let base = Math.max(0, this.subtotal - this.discountAmount);
+                    
+                    if (!this.taxEnabled) return base;
+
+                    let totalTax = 0;
+                    // Calculate Service Charges first
+                    let serviceCharges = 0;
+                    this.activeTaxes.filter(t => t.type === 'service_charge').forEach(t => {
+                        serviceCharges += base * (t.rate / 100);
+                    });
+
+                    // Calculate PB1 (on Base + SC)
+                    let taxBase = base + serviceCharges;
+                    let pb1 = 0;
+                    this.activeTaxes.filter(t => t.type === 'tax').forEach(t => {
+                        pb1 += taxBase * (t.rate / 100);
+                    });
+
+                    return base + serviceCharges + pb1;
+                },
+
+                get totalPaid() {
+                    return this.payments.reduce((sum, p) => sum + Number(p.amount), 0);
+                },
+
+                get remainingDue() {
+                    return Math.max(0, this.total - this.totalPaid);
+                },
+
+                get changeAmount() {
+                    return Math.max(0, this.totalPaid - this.total);
+                },
+
+                addPayment() {
+                    let amount = this.remainingDue > 0 ? this.remainingDue : 0;
+                    this.payments.push({ method: 'Cash', amount: amount, reference: '' });
+                },
+
+                removePayment(index) {
+                    this.payments.splice(index, 1);
+                },
+
+                openPaymentModal() {
+                    this.payments = [{ method: 'Cash', amount: this.total, reference: '' }];
+                    this.showPaymentModal = true;
+                },
+
+                applyPromotion() {
+                    if (!this.selectedPromotionId) {
+                        this.discountAmount = 0;
+                        return;
+                    }
+                    
+                    const promo = this.promotions.find(p => p.id == this.selectedPromotionId);
+                    if (promo) {
+                        if (promo.type === 'percentage') {
+                            this.discountAmount = this.subtotal * (promo.value / 100);
+                        } else {
+                            this.discountAmount = Number(promo.value);
+                        }
+                    }
+                },
+                
                 
                 addToCart(product) {
                     let item = this.cart.find(i => i.id === product.id);
@@ -220,30 +411,46 @@
                     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num); 
                 },
 
-                openPaymentModal() {
-                    if (this.cart.length === 0) return;
-                    this.showPaymentModal = true;
-                    // Reset payAmount to total for non-cash ease of use
-                    if (this.paymentMethod !== 'Cash') {
-                        this.payAmount = this.total;
-                    }
-                },
-
                 async processPayment() {
-                    if (this.paymentMethod === 'Cash' && this.payAmount < this.total) { 
-                        this.showToast('Gagal!', 'Uang Kurang! Harap masukkan jumlah yang sesuai.', 'error');
-                        return; 
+                    if (this.remainingDue > 0) {
+                        this.showToast('Gagal', 'Pembayaran belum lunas.', 'error');
+                        return;
                     }
 
-                    // Disable button to prevent double submit (handled by UI logic ideally)
-                    
                     let formData = new FormData();
+                    formData.append('_token', '{{ csrf_token() }}'); // Ensure CSRF token is always sent
+                    
+                    // Add items
                     formData.append('cart', JSON.stringify(this.cart));
-                    formData.append('total_amount', this.total);
-                    formData.append('payment_method', this.paymentMethod);
-                    formData.append('customer_name', 'Walk-in Customer');
-                    formData.append('_token', '{{ csrf_token() }}');
+                    formData.append('customer_name', this.customerName);
+                    
+                    // Add Transaction UUID if updating
+                    if (this.transactionUuid) {
+                        formData.append('transaction_uuid', this.transactionUuid);
+                    }
+                    
+                    // Split Payments
+                    formData.append('payments', JSON.stringify(this.payments));
+                    let primaryMethod = this.payments.length > 1 ? 'Split' : (this.payments[0]?.method || 'Cash');
+                    formData.append('payment_method', primaryMethod);
 
+                    // Pricing
+                    formData.append('discount_amount', this.discountAmount);
+                    
+                    let reason = '';
+                    if (this.selectedPromotionId) {
+                         const promo = this.promotions.find(p => p.id == this.selectedPromotionId);
+                         if (promo) reason = promo.name;
+                    }
+                    formData.append('discount_reason', reason);
+                    
+                    formData.append('tax_rate', this.taxRate);
+                    formData.append('tax_enabled', this.taxEnabled ? 1 : 0);
+                    formData.append('is_complimentary', this.isComplimentary ? 1 : 0);
+                    formData.append('notes', this.notes);
+                    
+                    formData.append('total_amount', this.total);
+                    
                     try {
                         let res = await fetch('{{ route("pos.store") }}', { 
                             method: 'POST', 
@@ -265,10 +472,13 @@
                             // Reset
                             this.cart = []; 
                             this.payAmount = 0;
-                            this.showPaymentModal = false; // Ensure closed
+                            this.showPaymentModal = false; 
                             this.paymentMethod = 'Cash';
+                            this.discountAmount = 0;
+                            this.discountReason = '';
+                            this.isComplimentary = false;
+                            this.notes = '';
                             
-                            // Optional: Toast notification
                             this.showToast('Sukses!', 'Transaksi Berhasil!', 'success'); 
                         } else {
                             this.showToast('Gagal!', result.message || 'Terjadi kesalahan.', 'error');
