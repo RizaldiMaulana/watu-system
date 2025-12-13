@@ -15,8 +15,8 @@ class AdminController extends Controller {
         $user = Auth::user();
 
         // 1. Data Operasional (SEMUA BISA LIHAT: Reservasi & Order Web)
-        $reservations = DB::table('reservations')
-            ->where('booking_date', '>=', now()->toDateString())
+        $reservations = \App\Models\Reservation::where('booking_date', '>=', now()->toDateString())
+            ->with(['transaction.items.product']) // Eager load pre-order details
             ->orderBy('booking_date', 'asc')
             ->orderBy('booking_time', 'asc')
             ->get();
@@ -59,12 +59,43 @@ class AdminController extends Controller {
                 ->get();
 
             $criticalStock = Ingredient::whereColumn('stock', '<=', 'minimum_stock')->get();
+
+            // NOTIFICATION TRIGGER: URGENT DEBT (Zero Config / No Cron)
+            // Check once per session to avoid spamming on refresh
+            if (!session()->has('urgent_debt_checked')) {
+                $urgentDebts = \App\Models\Purchase::where('payment_status', '!=', 'paid')
+                    ->whereDate('due_date', '<=', now()->addDays(1)) // Due today or tomorrow
+                    ->get();
+                
+                if ($urgentDebts->count() > 0) {
+                    // Send notification for the most urgent one (or summary)
+                    // For simplicity, just notify about the first one found
+                    // Or iterate if few. Let's do first one to start.
+                    foreach ($urgentDebts as $debt) {
+                         // Check if this specific user already got this notif recently? 
+                         // Native DB Notifs table doesn't easily dedup without query.
+                         // Simple approach: Just fire it. The session check protects per-login flood.
+                         $user->notify(new \App\Notifications\UrgentDebtNotification($debt));
+                    }
+                }
+                session()->put('urgent_debt_checked', true);
+            }
+        }
+        
+        // 3. Data Penerimaan Barang (Manager/Owner Only)
+        $pendingReceipts = collect([]);
+        if (in_array($user->role, ['admin', 'manager', 'owner'])) {
+             // Items waiting for validation (status = received but not verified)
+             $pendingReceipts = \App\Models\Purchase::where('status', 'received')
+                                ->with(['supplier', 'items.product', 'items.ingredient'])
+                                ->orderBy('updated_at', 'desc')
+                                ->get();
         }
 
         return view('dashboard', compact(
             'reservations', 'webOrders', 'pendingCount',
             'todayRevenue', 'todayOrdersCount', 'todaySales', 'todayCount', 
-            'bestSellers', 'criticalStock'
+            'bestSellers', 'criticalStock', 'pendingReceipts'
         ));
     }
     

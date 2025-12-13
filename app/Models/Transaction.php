@@ -16,6 +16,16 @@ class Transaction extends Model
         return $this->hasMany(TransactionItem::class);
     }
     
+    public function payments()
+    {
+        return $this->hasMany(TransactionPayment::class);
+    }
+
+    public function reservation()
+    {
+        return $this->belongsTo(Reservation::class);
+    }
+    
     // Use 'uuid' for route model binding if we want to use it implicitly
     public function getRouteKeyName()
     {
@@ -30,5 +40,19 @@ class Transaction extends Model
     public function uniqueIds()
     {
         return ['uuid'];
+    }
+
+    protected $casts = [
+        'is_complimentary' => 'boolean',
+        'voided_at' => 'datetime',
+        'service_charge_amount' => 'decimal:2',
+        'tax_amount' => 'decimal:2',
+        'subtotal_amount' => 'decimal:2',
+        'total_amount' => 'decimal:2',
+    ];
+
+    public function getIsVoidAttribute()
+    {
+        return !is_null($this->voided_at);
     }
 }

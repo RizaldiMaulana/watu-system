@@ -25,6 +25,8 @@ class ProfileUpdateRequest extends FormRequest
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
+            'signature' => ['nullable', 'file', 'mimes:jpg,jpeg,png', 'max:1024'], // 1MB Max
+            'signature_data' => ['nullable', 'string'], // Base64 data
         ];
     }
 }

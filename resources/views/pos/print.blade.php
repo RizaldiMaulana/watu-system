@@ -46,13 +46,43 @@
 
     <div class="border-bottom"></div>
 
+    <div class="flex" style="font-size: 11px;">
+        <span>Subtotal</span>
+        <span>{{ number_format($transaction->subtotal_amount, 0, ',', '.') }}</span>
+    </div>
+
+    @if($transaction->discount_amount > 0)
+    <div class="flex" style="font-size: 11px;">
+        <span>Disc {{ $transaction->discount_reason ? "({$transaction->discount_reason})" : '' }}</span>
+        <span>-{{ number_format($transaction->discount_amount, 0, ',', '.') }}</span>
+    </div>
+    @endif
+
+    @if($transaction->service_charge_amount > 0)
+    <div class="flex" style="font-size: 11px;">
+        <span>Service Charge</span>
+        <span>+{{ number_format($transaction->service_charge_amount, 0, ',', '.') }}</span>
+    </div>
+    @endif
+
+    @if($transaction->tax_amount > 0)
+    <div class="flex" style="font-size: 11px;">
+        <span>PB1 ({{ $transaction->tax_rate + 0 }}%)</span>
+        <span>+{{ number_format($transaction->tax_amount, 0, ',', '.') }}</span>
+    </div>
+    @endif
+
+    <div class="border-bottom"></div>
+
     <div class="flex bold" style="font-size: 13px;">
         <span>TOTAL</span>
         <span>Rp {{ number_format($transaction->total_amount, 0, ',', '.') }}</span>
     </div>
 
+    <div class="border-bottom"></div>
+
     <div class="flex">
-        <span>Metode</span>
+        <span>Bayar</span>
         <span>{{ $transaction->payment_method }}</span>
     </div>
     
@@ -60,8 +90,6 @@
         <span>Status</span>
         <span>{{ $transaction->payment_status }}</span>
     </div>
-
-    <div class="border-bottom"></div>
     <div class="text-center" style="margin-top: 10px;">
         Terima Kasih!<br>
         #WatuCoffee

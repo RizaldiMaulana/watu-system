@@ -22,5 +22,13 @@ class AppServiceProvider extends ServiceProvider
         if($this->app->environment('production')) {
             \Illuminate\Support\Facades\URL::forceScheme('https');
         }
+
+        // Auto-create storage folders for "Zero Config"
+        if (!file_exists(storage_path('app/public/signatures'))) {
+            @mkdir(storage_path('app/public/signatures'), 0755, true);
+        }
+        if (!file_exists(storage_path('app/public/delivery_proofs'))) {
+            @mkdir(storage_path('app/public/delivery_proofs'), 0755, true);
+        }
     }
 }

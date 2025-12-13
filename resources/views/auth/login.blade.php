@@ -12,12 +12,15 @@
         </div>
 
         <!-- Password -->
-        <div class="form-group">
-            <label for="password">{{ __('Password') }}</label>
-            <input id="password" type="password" name="password" required autocomplete="current-password">
-            @error('password')
-                <div class="error-message">{{ $message }}</div>
-            @enderror
+        <div class="mt-4">
+            <x-input-label for="password" :value="__('Password')" />
+
+            <x-password-input id="password" class="block mt-1 w-full"
+                            type="password"
+                            name="password"
+                            required autocomplete="current-password" />
+
+            <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
 
         <!-- Remember Me -->

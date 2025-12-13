@@ -8,6 +8,10 @@ class TransactionItem extends Model
 {
     protected $guarded = ['id'];
     
+    protected $casts = [
+        'options' => 'array',
+    ];
+    
     public $timestamps = false;
 
     public function product()

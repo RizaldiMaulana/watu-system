@@ -28,6 +28,36 @@ class ProfileController extends Controller
     {
         $request->user()->fill($request->validated());
 
+        if ($request->hasFile('signature')) {
+            // Delete old signature if exists
+            if ($request->user()->signature) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($request->user()->signature);
+            }
+            $path = $request->file('signature')->store('signatures', 'public');
+            $request->user()->signature = $path;
+        } elseif ($request->filled('signature_data')) {
+            // Handle Base64 Upload
+            $data = $request->signature_data;
+            // Remove header "data:image/png;base64,"
+            $image_parts = explode(";base64,", $data);
+            if (count($image_parts) >= 2) {
+                $image_type_aux = explode("image/", $image_parts[0]);
+                $image_type = $image_type_aux[1] ?? 'png';
+                $image_base64 = base64_decode($image_parts[1]);
+                
+                // Filename
+                $filename = 'signatures/' . uniqid() . '.' . $image_type;
+                
+                // Delete old
+                 if ($request->user()->signature) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($request->user()->signature);
+                }
+                
+                \Illuminate\Support\Facades\Storage::disk('public')->put($filename, $image_base64);
+                $request->user()->signature = $filename;
+            }
+        }
+
         if ($request->user()->isDirty('email')) {
             $request->user()->email_verified_at = null;
         }

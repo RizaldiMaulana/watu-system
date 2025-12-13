@@ -18,6 +18,7 @@
 
     <link rel="stylesheet" href="{{ asset('css/font-awesome.min.css') }}">
 </head>
+
 <body class="main-layout">
     <header class="header" id="mainHeader">
         <div class="container">

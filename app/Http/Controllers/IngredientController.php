@@ -33,16 +33,33 @@ class IngredientController extends Controller
     // Update stok (Stok Opname) atau Edit Data
     public function update(Request $request, Ingredient $ingredient)
     {
+        // Case 1: Update Master Data (Edit Button)
+        if ($request->action_type == 'update_data') {
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'unit' => 'required|string',
+                'minimum_stock' => 'required|numeric',
+            ]);
+            
+            $ingredient->update([
+                'name' => $request->name,
+                'unit' => $request->unit,
+                'minimum_stock' => $request->minimum_stock,
+            ]);
+            
+            return back()->with('success', 'Data bahan baku berhasil diperbarui.');
+        }
+
+        // Case 2: Stock Opname (Direct Input)
+        // Adjusts stock to match physical count.
+        // Ideally, we should create a Journal for inventory variance here, but for now we just update stock.
         $request->validate([
-            'stock' => 'nullable|numeric', // Jika hanya update stok
-            'name' => 'nullable|string',
-            'unit' => 'nullable|string',
-            'minimum_stock' => 'nullable|numeric',
+            'stock' => 'required|numeric', 
         ]);
 
-        $ingredient->update($request->all());
+        $ingredient->update(['stock' => $request->stock]);
 
-        return back()->with('success', 'Data bahan baku diperbarui');
+        return back()->with('success', 'Stok Opname berhasil disimpan. Stok diperbarui.');
     }
 
     // Hapus bahan baku

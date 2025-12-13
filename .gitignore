@@ -22,3 +22,15 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Database
+*.sql
+
+# Mobile Builds
+*.apk
+*.aab
+
+# Archives
+*.zip
+*.tar.gz
+*.rar

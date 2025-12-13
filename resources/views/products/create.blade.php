@@ -26,12 +26,11 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
                     <div>
                         <label class="block text-xs font-bold text-gray-600 uppercase mb-2">Kategori</label>
-                        <select name="category" class="w-full border-gray-300 rounded-lg focus:ring-[#5f674d] focus:border-[#5f674d]">
-                            <option value="coffee">Coffee Drink</option>
-                            <option value="non_coffee">Non Coffee</option>
-                            <option value="roast_bean">Roast Bean (Biji Kopi)</option>
-                            <option value="food">Makanan Berat</option>
-                            <option value="snack">Camilan / Snack</option>
+                        <select name="category_id" class="w-full border-gray-300 rounded-lg focus:ring-[#5f674d] focus:border-[#5f674d]">
+                            <option value="">-- Pilih Kategori --</option>
+                            @foreach($categories as $cat)
+                                <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                            @endforeach
                         </select>
                     </div>
                     <div>
@@ -70,9 +69,45 @@
                         <input type="number" name="price" required class="w-full border-gray-300 rounded-lg focus:ring-[#5f674d] focus:border-[#5f674d]">
                     </div>
                     <div>
+                         <label class="block text-xs font-bold text-gray-600 uppercase mb-2">HPP / Harga Pokok (Rp)</label>
+                         <input type="number" name="cost_price" value="0" class="w-full border-gray-300 rounded-lg focus:ring-[#5f674d] focus:border-[#5f674d]">
+                    </div>
+                    <div>
                         <label class="block text-xs font-bold text-gray-600 uppercase mb-2">Stok Awal</label>
                         <input type="number" name="stock" value="0" required class="w-full border-gray-300 rounded-lg focus:ring-[#5f674d] focus:border-[#5f674d]">
                     </div>
+                </div>
+
+                {{-- CUSTOM OPTIONS SECTION (Alpine.js) --}}
+                <div x-data="{
+                        options: [],
+                        addOption() {
+                            this.options.push({ name: '', values: '' });
+                        },
+                        removeOption(index) {
+                            this.options.splice(index, 1);
+                        }
+                     }" class="bg-blue-50 p-4 rounded-lg border border-blue-100 mb-6">
+                    <div class="flex justify-between items-center mb-3">
+                        <p class="text-xs font-bold text-blue-800 uppercase">Kustomisasi Menu (Opsional)</p>
+                        <button type="button" @click="addOption()" class="text-xs bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 font-bold">+ Tambah Opsi</button>
+                    </div>
+                    
+                    <p class="text-xs text-blue-600 mb-3 italic">Contoh: Nama = "Pilih Beans", Values = "Gayo, Bali, Toraja" (pisahkan dengan koma)</p>
+
+                    <template x-for="(opt, index) in options" :key="index">
+                        <div class="flex gap-3 mb-2 items-start">
+                            <div class="w-1/3">
+                                <input type="text" :name="'options[' + index + '][name]'" x-model="opt.name" placeholder="Nama Opsi (ex: Method)" class="w-full border-blue-200 rounded text-sm focus:ring-blue-500 focus:border-blue-500" required>
+                            </div>
+                            <div class="w-2/3 flex gap-2">
+                                <input type="text" :name="'options[' + index + '][values]'" x-model="opt.values" placeholder="Pilihan (ex: V60, Kalita)" class="w-full border-blue-200 rounded text-sm focus:ring-blue-500 focus:border-blue-500" required>
+                                <button type="button" @click="removeOption(index)" class="text-red-500 hover:text-red-700 px-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </template>
                 </div>
 
                 <div class="mb-6">
