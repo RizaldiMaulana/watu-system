@@ -16,6 +16,7 @@ class PosController extends Controller
     {
         $products = Product::where('is_available', true)->get();
         $categories = \App\Models\Category::orderBy('sort_order')->get();
+        $customers = \App\Models\Customer::orderBy('name')->get(); // NEW for AR POS
         
         // Data Master Integration
         $promotions = \App\Models\Promotion::where('is_active', true)->get();
@@ -30,7 +31,7 @@ class PosController extends Controller
                 ->first();
         }
 
-        return view('pos.pos', compact('products', 'categories', 'promotions', 'taxes', 'loadedOrder'));
+        return view('pos.pos', compact('products', 'categories', 'promotions', 'taxes', 'loadedOrder', 'customers'));
     }
 
     public function print($uuid)
@@ -171,9 +172,22 @@ class PosController extends Controller
                 ]);
 
             } else {
+                // Determine Payment Status & AR Fields
+                $paymentStatus = 'Paid';
+                $dueDate = null;
+                $paymentMethod = $request->payment_method ?? 'Split';
+
+                if ($paymentMethod === 'Credit') {
+                    $paymentStatus = 'Unpaid';
+                    $term = $request->payment_term; // e.g. net30
+                    $days = (int) filter_var($term ?: '30', FILTER_SANITIZE_NUMBER_INT) ?: 30; // Default 30
+                    $dueDate = \Carbon\Carbon::now()->addDays($days);
+                }
+
                 // CREATE NEW TRANSACTION
                 $transaction = Transaction::create([
                     'invoice_number' => $invoice,
+                    'customer_id' => $request->customer_id, // NEW: Link to Customer
                     'customer_name' => $request->customer_name ?? 'Guest',
                     'type' => 'Dine-in',
                     'subtotal_amount' => $subtotalCalc,
@@ -184,8 +198,10 @@ class PosController extends Controller
                     'service_charge_amount' => $serviceChargeAmount,
                     'total_amount' => $grandTotal, 
                     'is_complimentary' => $isComplimentary,
-                    'payment_status' => 'Paid',
-                    'payment_method' => $request->payment_method ?? 'Split', // Default to Split or specific if single
+                    'payment_status' => $paymentStatus,
+                    'payment_method' => $paymentMethod,
+                    'payment_term' => $request->payment_term,
+                    'due_date' => $dueDate,
                     'notes' => $request->notes
                 ]);
             }
@@ -305,8 +321,10 @@ class PosController extends Controller
                 
                 foreach($payments as $pay) {
                     $accId = 2; // Default Kas
-                    // Simple logic for future expansion:
-                    // if ($pay['method'] == 'QRIS' || $pay['method'] == 'Transfer') $accId = 3; 
+                    
+                    if ($pay['method'] === 'Credit') {
+                        $accId = DB::table('chart_of_accounts')->where('name', 'like', '%Piutang%')->value('id') ?? 103; // Fallback ID
+                    }
 
                     DB::table('journal_details')->insert([
                         'journal_id' => $journalId,

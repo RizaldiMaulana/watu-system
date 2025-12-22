@@ -185,6 +185,12 @@ class PurchaseController extends Controller
         return view('purchases.index', compact('purchases'));
     }
 
+    public function show(Purchase $purchase)
+    {
+        $purchase->load(['items.ingredient', 'items.product', 'supplier']);
+        return view('purchases.show', compact('purchase'));
+    }
+
     public function print(Purchase $purchase)
     {
         $purchase->load(['items.ingredient', 'items.product', 'supplier']);

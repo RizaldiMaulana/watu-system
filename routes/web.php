@@ -101,6 +101,9 @@ Route::domain(env('APP_DOMAIN_SYSTEM', null))->group(function () {
             Route::resource('promotions', PromotionController::class);
             Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
             Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
+
+            // --- DSS (Decision Support System) ---
+            Route::get('/dss/restock', [App\Http\Controllers\DssController::class, 'index'])->name('dss.restock');
         });
 
         // --- AREA STRICT MANAJEMEN (Hanya Admin, Manager, Owner) ---
@@ -128,6 +131,7 @@ Route::domain(env('APP_DOMAIN_SYSTEM', null))->group(function () {
             Route::get('/purchases', [PurchaseController::class, 'index'])->name('purchases.index');
             Route::get('/purchases/create', [PurchaseController::class, 'create'])->name('purchases.create');
             Route::get('/purchases/{purchase}/print', [PurchaseController::class, 'print'])->name('purchases.print');
+            Route::get('/purchases/{purchase}', [PurchaseController::class, 'show'])->name('purchases.show');
             
             Route::post('/purchases', [PurchaseController::class, 'store'])->name('purchases.store');
             
@@ -136,6 +140,17 @@ Route::domain(env('APP_DOMAIN_SYSTEM', null))->group(function () {
             Route::get('/recipes/{product}/manage', [RecipeController::class, 'edit'])->name('recipes.edit');
             Route::post('/recipes/{product}/add', [RecipeController::class, 'store'])->name('recipes.store');
             Route::delete('/recipes/{recipe}/remove', [RecipeController::class, 'destroy'])->name('recipes.destroy');
+
+            // --- FINANCE DASHBOARD (UNIFIED AP/AR) ---
+            Route::get('/finance', [App\Http\Controllers\FinanceController::class, 'index'])->name('finance.index');
+            
+            // --- REPORT PRINTING & EXPORT ---
+            Route::get('/reports/print/{type}', [App\Http\Controllers\ReportController::class, 'print'])->name('reports.print');
+
+            // --- ACCOUNTS RECEIVABLE (AR) ---
+            Route::get('/ar', [App\Http\Controllers\ArController::class, 'index'])->name('ar.index');
+            Route::get('/ar/{uuid}', [App\Http\Controllers\ArController::class, 'show'])->name('ar.show');
+            Route::post('/ar/{uuid}/pay', [App\Http\Controllers\ArController::class, 'storePayment'])->name('ar.storePayment');
 
             // --- ACCOUNTING MODULE ---
             Route::get('/accounting', [App\Http\Controllers\AccountingController::class, 'index'])->name('accounting.index');

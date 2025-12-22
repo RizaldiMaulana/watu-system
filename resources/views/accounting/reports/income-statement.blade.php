@@ -22,6 +22,17 @@
                 <input type="date" name="end_date" value="{{ $endDate }}" class="text-sm rounded-md border-gray-300">
                 <button type="submit" class="bg-[#5f674d] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#4a503b]">Filter</button>
                 <a href="{{ route('accounting.reports.income_statement') }}" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-bold hover:bg-gray-300">Reset</a>
+                
+                <div class="ml-4 flex gap-2 border-l pl-4 border-gray-300">
+                    <a href="{{ route('reports.print', ['type' => 'income-statement', 'start_date' => $startDate, 'end_date' => $endDate]) }}" target="_blank" class="bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-bold hover:bg-blue-700 flex items-center gap-1" title="Print PDF">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2-4h6a2 2 0 012 2v2M7 7h10a2 2 0 012 2v2M7 7H5a2 2 0 00-2 2v2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                        Print
+                    </a>
+                    <a href="{{ route('reports.print', ['type' => 'income-statement', 'start_date' => $startDate, 'end_date' => $endDate, 'export' => 'excel']) }}" target="_blank" class="bg-green-600 text-white px-3 py-2 rounded-lg text-sm font-bold hover:bg-green-700 flex items-center gap-1" title="Export Excel">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        XLS
+                    </a>
+                </div>
             </form>
         </div>
 

@@ -11,13 +11,18 @@
         
         <div class="w-[420px] flex flex-col bg-white border-r border-gray-200 shadow-2xl z-20 h-full flex-shrink-0">
             <div class="h-16 bg-white border-b border-gray-100 flex items-center justify-between px-5 flex-shrink-0">
-                <div class="flex items-center gap-3 bg-gray-50 px-3 py-2 rounded-lg">
-                    <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#5f674d] shadow-sm">
+                <div class="flex items-center gap-3 bg-gray-50 px-3 py-2 rounded-lg flex-1 mr-2">
+                    <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[#5f674d] shadow-sm flex-shrink-0">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                     </div>
-                    <div class="leading-tight">
+                    <div class="leading-tight w-full">
                         <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Pelanggan</p>
-                        <p class="text-sm font-bold text-[#2b2623]">Walk-in Customer</p>
+                        <select x-model="selectedCustomerId" class="bg-transparent border-none p-0 text-sm font-bold text-[#2b2623] focus:ring-0 w-full cursor-pointer">
+                            <option value="">Walk-in Customer</option>
+                            <template x-for="cust in customers" :key="cust.id">
+                                <option :value="cust.id" x-text="cust.name"></option>
+                            </template>
+                        </select>
                     </div>
                 </div>
                 <button @click="cart = []" class="text-gray-400 hover:text-red-500 p-2 rounded-lg hover:bg-red-50 transition" title="Reset">
@@ -195,7 +200,17 @@
                                         <option value="QRIS">QRIS</option>
                                         <option value="Debit">Debit</option>
                                         <option value="Transfer">Transfer</option>
+                                        <option value="Credit" class="text-red-600 font-bold">Credit / Tempo</option>
                                     </select>
+                                    <!-- Term Input for Credit -->
+                                    <div x-show="payment.method === 'Credit'" class="mt-1">
+                                        <select x-model="paymentTerm" class="w-full text-xs rounded border-gray-200 bg-red-50 text-red-800">
+                                            <option value="net7">Net 7 Days</option>
+                                            <option value="net14">Net 14 Days</option>
+                                            <option value="net30">Net 30 Days</option>
+                                            <option value="net60">Net 60 Days</option>
+                                        </select>
+                                    </div>
                                 </div>
                                 <div class="flex-1">
                                     <label class="block text-xs text-gray-400 mb-1" x-show="index===0">Nominal</label>
@@ -245,29 +260,27 @@
                 products: {{ \Illuminate\Support\Js::from($products) }},
                 promotions: {{ \Illuminate\Support\Js::from($promotions) }},
 
-                // Pricing States
-                search: '', 
-                selectedCategory: 'all', 
-                cart: [], 
-                showPaymentModal: false, 
-                
-                // Split Payment State
-                payments: [], // [{method: 'Cash', amount: 0, reference: ''}]
-                
-                taxes: {{ \Illuminate\Support\Js::from($taxes) }},
+                customers: {{ \Illuminate\Support\Js::from($customers) }},
+                selectedCustomerId: '', 
+                customerName: 'Walk-in Customer', // Display name
                 taxEnabled: true,
                 discountAmount: 0,
                 selectedPromotionId: '',
                 isComplimentary: false,
                 notes: '',
-                customerName: 'Walk-in Customer',
-                transactionUuid: '', // New state for existing transaction
-                
-                showToast(title, message, type = 'success') {
-                    this.$dispatch('notify', { title, message, type });
-                },
+                transactionUuid: '', 
+                paymentTerm: 'net30', // Default term
                 
                 init() {
+                    // Watch selection to update Name
+                    this.$watch('selectedCustomerId', (val) => {
+                        if(val) {
+                            let c = this.customers.find(x => x.id == val);
+                            this.customerName = c ? c.name : 'Walk-in Customer';
+                        } else {
+                            this.customerName = 'Walk-in Customer';
+                        }
+                    });
                     // Check if order data is passed from controller
                     let loadedOrder = {{ \Illuminate\Support\Js::from($loadedOrder ?? null) }};
                     if (loadedOrder) {
@@ -422,7 +435,9 @@
                     
                     // Add items
                     formData.append('cart', JSON.stringify(this.cart));
+                    formData.append('customer_id', this.selectedCustomerId); // NEW
                     formData.append('customer_name', this.customerName);
+                    formData.append('payment_term', this.paymentTerm); // NEW
                     
                     // Add Transaction UUID if updating
                     if (this.transactionUuid) {
