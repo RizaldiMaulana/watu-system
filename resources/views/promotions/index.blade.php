@@ -46,7 +46,7 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                             <a href="{{ route('promotions.edit', $promo->id) }}" class="text-[#5f674d] hover:text-[#4a503a] mr-3">Edit</a>
-                            <form action="{{ route('promotions.destroy', $promo->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Hapus promo ini?')">
+                            <form action="{{ route('promotions.destroy', $promo->id) }}" method="POST" class="inline-block" data-confirm="Hapus promo ini?">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="text-red-500 hover:text-red-700">Hapus</button>

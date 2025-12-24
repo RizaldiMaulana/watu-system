@@ -11,10 +11,56 @@ use Illuminate\Support\Facades\DB;
 
 class ReportController extends Controller
 {
-    public function print(Request $request, $type)
+    public function jurnal(Request $request)
     {
         $startDate = $request->input('start_date', date('Y-m-01'));
         $endDate = $request->input('end_date', date('Y-m-d'));
+
+        $journals = \App\Models\Journal::with(['details.account', 'details' => function($q) {
+                $q->orderBy('debit', 'desc'); // Debit first usually
+            }])
+            ->whereBetween('transaction_date', [$startDate, $endDate])
+            ->orderBy('transaction_date', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        // Chart Data (Last 7 Days Transaction Volume based on Journals)
+        // Group by Date, Sum total Debit (assuming balanced journal, debit=credit represents volume)
+        $chartData = \App\Models\Journal::selectRaw('DATE(transaction_date) as date, SUM(total_debit) as total')
+            ->whereBetween('transaction_date', [\Carbon\Carbon::now()->subDays(6), \Carbon\Carbon::now()]) 
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
+
+        $labels = [];
+        $values = [];
+        
+        // Fill last 7 days including empty ones
+        for ($i = 6; $i >= 0; $i--) {
+            $d = \Carbon\Carbon::now()->subDays($i)->format('Y-m-d');
+            $labels[] = \Carbon\Carbon::parse($d)->format('d M');
+            $rec = $chartData->firstWhere('date', $d);
+            $values[] = $rec ? $rec->total : 0;
+        }
+        
+        // Make collections for view compatibility (sum() method)
+        $values = collect($values);
+
+        return view('reports.index', compact('journals', 'startDate', 'endDate', 'labels', 'values'));
+    }
+
+    public function print(Request $request, $type)
+    {
+        // Default Dates depend on Report Type
+        $defaultStart = date('Y-m-01');
+        $defaultEnd = date('Y-m-d');
+
+        if (in_array($type, ['ar', 'ap'])) {
+            $defaultStart = null; // Show all history by default for AR/AP
+        }
+
+        $startDate = $request->input('start_date', $defaultStart);
+        $endDate = $request->input('end_date', $defaultEnd);
         $export = $request->query('export') === 'excel';
 
         $viewName = "reports.print.{$type}";
@@ -22,21 +68,22 @@ class ReportController extends Controller
 
         switch ($type) {
             case 'balance-sheet':
-                $data = $this->getBalanceSheetData($endDate);
+                // Balance Sheet needs End Date only usually
+                $data = $this->getBalanceSheetData($endDate ?: date('Y-m-d'));
                 $data['title'] = 'Laporan Neraca (Balance Sheet)';
-                $data['subtitle'] = "Per Tanggal: " . \Carbon\Carbon::parse($endDate)->translatedFormat('d F Y');
+                $data['subtitle'] = "Per Tanggal: " . \Carbon\Carbon::parse($endDate ?: now())->translatedFormat('d F Y');
                 break;
 
             case 'income-statement':
-                $data = $this->getIncomeStatementData($startDate, $endDate);
+                $data = $this->getIncomeStatementData($startDate ?: date('Y-m-01'), $endDate ?: date('Y-m-d'));
                 $data['title'] = 'Laporan Laba Rugi (Income Statement)';
-                $data['subtitle'] = "Periode: " . \Carbon\Carbon::parse($startDate)->translatedFormat('d M Y') . " - " . \Carbon\Carbon::parse($endDate)->translatedFormat('d M Y');
+                $data['subtitle'] = "Periode: " . \Carbon\Carbon::parse($startDate ?: date('Y-m-01'))->translatedFormat('d M Y') . " - " . \Carbon\Carbon::parse($endDate ?: date('Y-m-d'))->translatedFormat('d M Y');
                 break;
 
             case 'cash-flow':
-                $data = $this->getCashFlowData($startDate, $endDate);
+                $data = $this->getCashFlowData($startDate ?: date('Y-m-01'), $endDate ?: date('Y-m-d'));
                 $data['title'] = 'Laporan Arus Kas (Cash Flow)';
-                $data['subtitle'] = "Periode: " . \Carbon\Carbon::parse($startDate)->translatedFormat('d M Y') . " - " . \Carbon\Carbon::parse($endDate)->translatedFormat('d M Y');
+                $data['subtitle'] = "Periode: " . \Carbon\Carbon::parse($startDate ?: date('Y-m-01'))->translatedFormat('d M Y') . " - " . \Carbon\Carbon::parse($endDate ?: date('Y-m-d'))->translatedFormat('d M Y');
                 break;
 
             case 'ar': // Accounts Receivable

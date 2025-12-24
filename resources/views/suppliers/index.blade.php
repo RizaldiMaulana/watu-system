@@ -27,7 +27,7 @@
                         <td class="px-6 py-4 text-sm text-gray-600 truncate max-w-xs">{{ $supplier->address ?? '-' }}</td>
                         <td class="px-6 py-4 text-right text-sm font-medium">
                             <a href="{{ route('suppliers.edit', $supplier->id) }}" class="text-[#d4a056] hover:text-[#b58440] mr-3">Edit</a>
-                            <form action="{{ route('suppliers.destroy', $supplier->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Hapus supplier ini?');">
+                            <form action="{{ route('suppliers.destroy', $supplier->id) }}" method="POST" class="inline-block" data-confirm="Hapus supplier ini?">
                                 @csrf @method('DELETE')
                                 <button class="text-red-600 hover:text-red-900">Hapus</button>
                             </form>

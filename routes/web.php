@@ -127,6 +127,7 @@ Route::domain(env('APP_DOMAIN_SYSTEM', null))->group(function () {
             Route::resource('products', ProductController::class);
             Route::resource('categories', CategoryController::class);
             Route::resource('suppliers', SupplierController::class);
+            Route::resource('customers', App\Http\Controllers\CustomerController::class);
             
             Route::get('/purchases', [PurchaseController::class, 'index'])->name('purchases.index');
             Route::get('/purchases/create', [PurchaseController::class, 'create'])->name('purchases.create');
@@ -134,6 +135,7 @@ Route::domain(env('APP_DOMAIN_SYSTEM', null))->group(function () {
             Route::get('/purchases/{purchase}', [PurchaseController::class, 'show'])->name('purchases.show');
             
             Route::post('/purchases', [PurchaseController::class, 'store'])->name('purchases.store');
+            Route::post('/purchases/{id}/pay', [PurchaseController::class, 'pay'])->name('purchases.pay');
             
             // --- MODUL RESEP (BILL OF MATERIALS) --- (YANG HILANG TADI)
             Route::get('/recipes', [RecipeController::class, 'index'])->name('recipes.index');
@@ -163,6 +165,12 @@ Route::domain(env('APP_DOMAIN_SYSTEM', null))->group(function () {
             
             // Tax Management
             Route::resource('taxes', App\Http\Controllers\TaxController::class);
+
+            // --- FIXED ASSETS ---
+            Route::get('/accounting/assets', [App\Http\Controllers\FixedAssetController::class, 'index'])->name('accounting.assets.index');
+            Route::get('/accounting/assets/create', [App\Http\Controllers\FixedAssetController::class, 'create'])->name('accounting.assets.create');
+            Route::post('/accounting/assets', [App\Http\Controllers\FixedAssetController::class, 'store'])->name('accounting.assets.store');
+            Route::post('/accounting/assets/depreciate', [App\Http\Controllers\FixedAssetController::class, 'depreciate'])->name('accounting.assets.depreciate');
 
             // --- SLIDER MANAGEMENT (CMS) ---
             Route::resource('sliders', App\Http\Controllers\SliderController::class);

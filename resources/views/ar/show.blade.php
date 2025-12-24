@@ -71,8 +71,8 @@
                         </div>
 
                         <div class="flex justify-end gap-3">
-                            <a href="{{ route('ar.index') }}" class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-bold transition">Batal</a>
-                            <button type="submit" onclick="return confirm('Konfirmasi pelunasan piutang ini?')" class="px-6 py-2 bg-[#5f674d] hover:bg-[#4b523d] text-white rounded-lg font-bold shadow-lg transition">
+                            <a href="{{ route('finance.index', ['tab' => 'receivables']) }}" class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-bold transition">Batal</a>
+                            <button type="submit" data-confirm="Konfirmasi pelunasan piutang ini?" class="px-6 py-2 bg-[#5f674d] hover:bg-[#4b523d] text-white rounded-lg font-bold shadow-lg transition">
                                 Konfirmasi Pelunasan
                             </button>
                         </div>

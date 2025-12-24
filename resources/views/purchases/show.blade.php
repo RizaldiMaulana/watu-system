@@ -78,6 +78,35 @@
                     </div>
 
                 </div>
+                </div>
+            
+                <!-- Payment Section (Only if Unpaid) -->
+                @if($purchase->payment_status != 'paid')
+                <div class="mt-8 bg-gray-50 p-6 rounded-lg border border-gray-200">
+                    <h4 class="font-bold text-lg mb-4 text-gray-800">Pembayaran / Pelunasan Hutang</h4>
+                    <form action="{{ route('purchases.pay', $purchase->id) }}" method="POST" class="flex flex-col md:flex-row gap-4 items-end">
+                        @csrf
+                        <div class="w-full md:w-1/3">
+                            <label class="block text-sm font-bold text-gray-700 mb-1">Metode Bayar</label>
+                            <select name="payment_method" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                <option value="Cash">Tunai (Kas)</option>
+                                <option value="Transfer">Transfer Bank</option>
+                            </select>
+                        </div>
+                        <div class="w-full md:w-1/3">
+                            <label class="block text-sm font-bold text-gray-700 mb-1">Nominal Bayar</label>
+                            <input type="number" name="amount" value="{{ $purchase->total_amount - $purchase->paid_amount }}" class="w-full rounded-md border-gray-300 shadow-sm font-bold text-gray-900" readonly>
+                            <p class="text-xs text-gray-500 mt-1">* Pelunasan penuh sesuai sisa tagihan.</p>
+                        </div>
+                        <div class="w-full md:w-auto">
+                            <button type="submit" data-confirm="Konfirmasi pembayaran ini?" class="bg-[#5f674d] text-white px-6 py-2 rounded-lg font-bold hover:bg-[#4a503b] shadow-lg transition">
+                                Bayar Sekarang
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                @endif
+                
             </div>
         </div>
     </div>

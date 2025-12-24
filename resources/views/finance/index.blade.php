@@ -103,7 +103,10 @@
                                 </td>
                                 <td class="px-6 py-4 text-right text-sm font-medium">
                                     @if($activeTab === 'receivables')
-                                        <a href="{{ route('ar.show', $item->uuid) }}" class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1 rounded font-bold">Bayar</a>
+                                        <a href="{{ route('ar.show', $item->uuid) }}" class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1 rounded font-bold mr-2">Bayar</a>
+                                        <a href="{{ route('pos.print', $item->uuid) }}" target="_blank" class="text-gray-600 hover:text-gray-900 bg-gray-100 px-3 py-1 rounded font-bold" title="Cetak Invoice">
+                                            <svg class="w-4 h-4 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2-4h6a2 2 0 012 2v2M7 7h10a2 2 0 012 2v2M7 7H5a2 2 0 00-2 2v2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                                        </a>
                                     @else
                                         <!-- For AP, maybe link to Purchase Detail -->
                                         <a href="{{ route('purchases.show', $item->id) }}" class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1 rounded font-bold">Detail</a>

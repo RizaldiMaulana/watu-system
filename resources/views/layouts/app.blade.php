@@ -238,6 +238,73 @@
                 confirmButtonColor: '#5f674d'
             });
         @endif
+
+
+        // Global Confirmation Handler for 'data-confirm' attribute
+        document.addEventListener('click', function(e) {
+            let target = e.target.closest('[data-confirm]');
+            if (!target) return;
+
+            e.preventDefault();
+            const message = target.getAttribute('data-confirm');
+            
+            Swal.fire({
+                title: 'Konfirmasi',
+                text: message,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#5f674d',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, Lanjutkan!',
+                cancelButtonText: 'Batal',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    if (target.tagName === 'FORM') {
+                        target.removeAttribute('data-confirm');
+                        target.submit();
+                    } else if (target.tagName === 'A') {
+                        window.location.href = target.href;
+                    } else if (target.tagName === 'BUTTON' && target.type === 'submit') {
+                        // Find closest form and submit
+                        const form = target.closest('form');
+                        if (form) {
+                            form.submit();
+                        }
+                    } else if (target.tagName === 'BUTTON' || target.tagName === 'INPUT') {
+                       // Generic button/input, just clicking it programmatically might loop if not careful? 
+                       // For now, assume mainly Forms and Links use this.
+                       // If it's a submit button inside a form w/o form logic, handled above.
+                    }
+                }
+            });
+        });
+
+        // Handle Forms with data-confirm directly on the form tag
+        document.addEventListener('submit', function(e) {
+            if (e.target.hasAttribute('data-confirm')) {
+                e.preventDefault();
+                const message = e.target.getAttribute('data-confirm');
+                const form = e.target;
+                
+                Swal.fire({
+                    title: 'Konfirmasi',
+                    text: message,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#5f674d',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Ya, Lanjutkan!',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.removeAttribute('data-confirm');
+                        form.submit();
+                    }
+                });
+            }
+        });
     </script>
 
     <script>

@@ -46,7 +46,7 @@
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <button @click="openModal = true; editMode = true; currentId = {{ $account->id }}; form = { code: '{{ $account->code }}', name: '{{ $account->name }}', type: '{{ $account->type }}' }" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
                                 
-                                <form action="{{ route('accounting.coa.destroy', $account->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Yakin ingin menghapus akun ini?');">
+                                <form action="{{ route('accounting.coa.destroy', $account->id) }}" method="POST" class="inline-block" data-confirm="Yakin ingin menghapus akun ini?">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="text-red-600 hover:text-red-900">Hapus</button>

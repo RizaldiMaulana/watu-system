@@ -8,7 +8,7 @@
     
     <div class="container relative z-10">
         <div class="row align-items-center">
-            <div class="col-lg-6 hero-text">
+            <div class="col-12 col-lg-6 hero-text text-center text-lg-start">
                 <h5 class="text-olive text-uppercase font-weight-bold letter-spacing-2 mb-3">Welcome to Watu</h5>
                 <!-- Dynamic Hero Text could be added to DB later, keeping static for now or using first slider title -->
                 <h1 class="display-3 font-serif font-weight-bold mb-4">Experience the <span class="text-olive">Perfect Roast</span></h1>
@@ -16,8 +16,8 @@
                     Discover the authentic taste of locally sourced, premium coffee beans. 
                     Roasted to perfection for those who appreciate the finer details.
                 </p>
-                <div class="hero-buttons">
-                    <a href="{{ route('order') }}#pills-cafe" class="btn btn-watu-primary me-3">Order Now</a>
+                <div class="hero-buttons d-flex flex-wrap justify-content-center justify-content-lg-start gap-3 w-100">
+                    <a href="{{ route('order') }}#pills-cafe" class="btn btn-watu-primary">Order Now</a>
                     <a href="#about" class="btn btn-watu-outline smooth-scroll">Our Story</a>
                 </div>
             </div>

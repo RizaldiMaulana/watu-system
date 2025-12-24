@@ -205,11 +205,85 @@ class PurchaseController extends Controller
             'total_debit' => $total, 'total_credit' => $total,
         ]);
         
-        // Debit Persediaan
-        JournalDetail::create(['journal_id' => $journal->id, 'account_id' => 1, 'debit' => $total, 'credit' => 0]);
+        // Debit Persediaan (1-xxx)
+        // Find 'Persediaan Bahan Baku' or Default to 1
+        $invAcc = DB::table('chart_of_accounts')->where('name', 'like', '%Persediaan%')->value('id') ?? 1;
+        JournalDetail::create(['journal_id' => $journal->id, 'account_id' => $invAcc, 'debit' => $total, 'credit' => 0]);
         
         // Kredit Kas/Utang
-        $creditAccount = ($method == 'cash') ? 2 : 3;
-        JournalDetail::create(['journal_id' => $journal->id, 'account_id' => $creditAccount, 'debit' => 0, 'credit' => $total]);
+        if ($method == 'cash') {
+             $creditAcc = 2; // Kas
+        } else {
+             // Hutang Usaha
+             $creditAcc = DB::table('chart_of_accounts')->where('name', 'like', '%Hutang%')->value('id') ?? 3; 
+        }
+
+        JournalDetail::create(['journal_id' => $journal->id, 'account_id' => $creditAcc, 'debit' => 0, 'credit' => $total]);
+    }
+
+    public function pay(Request $request, $id)
+    {
+        $purchase = Purchase::findOrFail($id);
+
+        if ($purchase->payment_status === 'paid') {
+            return back()->with('error', 'Purchase Order ini sudah lunas.');
+        }
+
+        $request->validate([
+            'payment_method' => 'required',
+            'amount' => 'required|numeric|min:0',
+        ]);
+
+        $amount = $request->amount;
+
+        try {
+            DB::transaction(function () use ($request, $purchase, $amount) {
+                // 1. Update Purchase Status
+                $purchase->update([
+                    'payment_status' => 'paid',
+                    'paid_amount' => $purchase->paid_amount + $amount, // Assuming full payment for now based on UI
+                ]);
+
+                // 2. Create Journal (Debit Hutang, Kredit Kas/Bank)
+                // Debit Hutang Usaha
+                $apAcc = DB::table('chart_of_accounts')->where('name', 'like', '%Hutang%')->value('id') ?? 3;
+                
+                // Kredit Kas / Bank
+                $cashAcc = 2; // Default Kas
+                if ($request->payment_method === 'Transfer') {
+                    $bankAcc = DB::table('chart_of_accounts')->where('name', 'like', '%Bank%')->value('id');
+                    if ($bankAcc) $cashAcc = $bankAcc;
+                }
+
+                $journalId = DB::table('journals')->insertGetId([
+                    'ref_number' => 'PAY-' . $purchase->invoice_number,
+                    'transaction_date' => now(),
+                    'description' => 'Pelunasan Hutang PO: ' . $purchase->invoice_number . ' (' . ($purchase->supplier->name ?? 'Supplier') . ')',
+                    'total_debit' => $amount,
+                    'total_credit' => $amount,
+                    'created_at' => now(), 'updated_at' => now(),
+                ]);
+
+                // Debit Hutang (Mengurangi Hutang)
+                DB::table('journal_details')->insert([
+                    'journal_id' => $journalId, 'account_id' => $apAcc,
+                    'debit' => $amount, 'credit' => 0,
+                    'created_at' => now(), 'updated_at' => now(),
+                ]);
+
+                // Kredit Kas (Uang Keluar)
+                DB::table('journal_details')->insert([
+                    'journal_id' => $journalId, 'account_id' => $cashAcc,
+                    'debit' => 0, 'credit' => $amount,
+                    'created_at' => now(), 'updated_at' => now(),
+                ]);
+
+            });
+
+            return back()->with('success', 'Pembayaran berhasil dicatat. Status PO kini LUNAS.');
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal memproses pembayaran: ' . $e->getMessage());
+        }
     }
 }

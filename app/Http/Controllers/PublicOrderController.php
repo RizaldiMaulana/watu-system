@@ -140,6 +140,10 @@ class PublicOrderController extends Controller
                 foreach ($roasters as $u) $u->notify(new \App\Notifications\NewWebOrderNotification($trx));
             }
 
+            // Management (Admin, Manager, Owner) - Notify for ALL new orders
+            $managers = \App\Models\User::whereIn('role', ['admin', 'manager', 'owner'])->get();
+            foreach ($managers as $u) $u->notify(new \App\Notifications\NewWebOrderNotification($trx));
+
 
             foreach ($itemsToOrder as $productId => $qty) {
                 $p = Product::find($productId);

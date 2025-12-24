@@ -61,7 +61,7 @@
                                                 <a href="{{ route('users.edit', $user->id) }}" class="text-indigo-600 hover:text-indigo-900 font-bold">Edit</a>
                                                 
                                                 @if(auth()->id() !== $user->id)
-                                                <form action="{{ route('users.destroy', $user->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus user ini?');">
+                                                <form action="{{ route('users.destroy', $user->id) }}" method="POST" data-confirm="Yakin ingin menghapus user ini?">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="text-red-600 hover:text-red-900 font-bold">Hapus</button>

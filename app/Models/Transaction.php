@@ -25,6 +25,11 @@ class Transaction extends Model
     {
         return $this->belongsTo(Reservation::class);
     }
+
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
+    }
     
     // Use 'uuid' for route model binding if we want to use it implicitly
     public function getRouteKeyName()

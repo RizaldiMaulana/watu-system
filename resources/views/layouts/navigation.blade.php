@@ -165,6 +165,12 @@
                         <span class="text-xs">●</span>
                         <span class="font-medium text-sm">Jurnal Manual</span>
                     </x-nav-link>
+
+                    <x-nav-link :href="route('accounting.assets.index')" :active="request()->routeIs('accounting.assets.*')" 
+                        class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 {{ request()->routeIs('accounting.assets.*') ? 'text-[#5f674d] font-bold bg-[#5f674d]/5' : 'text-gray-500 hover:text-[#5f674d]' }}">
+                        <span class="text-xs">●</span>
+                        <span class="font-medium text-sm">Aset Tetap (Baru)</span>
+                    </x-nav-link>
                 </div>
             </div>
 
@@ -213,31 +219,12 @@
 
             <!-- AP & AR Dropdown (NEW) -->
             @if(in_array(Auth::user()->role, ['admin', 'manager', 'owner']))
-            <div x-data="{ open: {{ request()->routeIs('ar.*') || request()->routeIs('accounting.reports.accounts_payable') ? 'true' : 'false' }} }" class="pt-2">
-                <button @click="sidebarCollapsed ? sidebarCollapsed = false : open = !open" 
-                        class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-gray-600 hover:bg-gray-50 hover:text-[#5f674d] transition-all duration-200 group"
-                        :class="sidebarCollapsed ? 'justify-center' : ''">
-                    <div class="flex items-center gap-3">
-                        <svg class="w-5 h-5 group-hover:text-[#5f674d]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                        <span class="font-medium text-sm" :class="sidebarCollapsed ? 'hidden' : ''">Hutang & Piutang</span>
-                    </div>
-                    <svg class="w-4 h-4 transition-transform duration-200" :class="{'rotate-180': open, 'hidden': sidebarCollapsed}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                </button>
-                
-                <div x-show="open && !sidebarCollapsed" x-transition class="mt-1 space-y-1 pl-4 border-l-2 border-gray-100 ml-4">
-                    <x-nav-link :href="route('finance.index', ['tab' => 'receivables'])" :active="request()->fullUrlIs(route('finance.index', ['tab' => 'receivables']))" 
-                        class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 {{ request()->fullUrlIs(route('finance.index', ['tab' => 'receivables'])) ? 'text-[#5f674d] font-bold bg-[#5f674d]/5' : 'text-gray-500 hover:text-[#5f674d]' }}">
-                        <span class="text-xs">●</span>
-                        <span class="font-medium text-sm">Piutang Usaha (AR)</span>
-                    </x-nav-link>
-
-                    <x-nav-link :href="route('finance.index', ['tab' => 'payables'])" :active="request()->fullUrlIs(route('finance.index', ['tab' => 'payables']))" 
-                        class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 {{ request()->fullUrlIs(route('finance.index', ['tab' => 'payables'])) ? 'text-[#5f674d] font-bold bg-[#5f674d]/5' : 'text-gray-500 hover:text-[#5f674d]' }}">
-                        <span class="text-xs">●</span>
-                        <span class="font-medium text-sm">Hutang Usaha (AP)</span>
-                    </x-nav-link>
-                </div>
-            </div>
+            <x-nav-link :href="route('finance.index')" :active="request()->routeIs('finance.*') || request()->routeIs('ar.*')" 
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group {{ request()->routeIs('finance.*') || request()->routeIs('ar.*') ? 'bg-[#5f674d] text-white shadow-md shadow-[#5f674d]/20' : 'text-gray-600 hover:bg-gray-50 hover:text-[#5f674d]' }}"
+                x-bind:class="sidebarCollapsed ? 'justify-center' : ''">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                <span class="font-medium text-sm" :class="sidebarCollapsed ? 'hidden' : ''">Hutang & Piutang</span>
+            </x-nav-link>
             @endif
 
             <!-- Data Master Dropdown -->
@@ -279,7 +266,13 @@
                     @endif
 
                     @if(in_array(Auth::user()->role, ['admin', 'manager', 'owner']))
-                    <x-nav-link :href="route('suppliers.index')" :active="request()->routeIs('suppliers.*')" 
+                    <x-nav-link :href="route('customers.index')" :active="request()->routeIs('customers.*')" 
+                        class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 {{ request()->routeIs('customers.*') ? 'text-[#5f674d] font-bold bg-[#5f674d]/5' : 'text-gray-500 hover:text-[#5f674d]' }}">
+                        <span class="text-xs">●</span>
+                        <span class="font-medium text-sm">Data Pelanggan</span>
+                    </x-nav-link>
+
+                    <x-nav-link :href="route('suppliers.index')" :active="request()->routeIs('suppliers.*')"  
                         class="flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 {{ request()->routeIs('suppliers.*') ? 'text-[#5f674d] font-bold bg-[#5f674d]/5' : 'text-gray-500 hover:text-[#5f674d]' }}">
                         <span class="text-xs">●</span>
                         <span class="font-medium text-sm">Data Supplier</span>

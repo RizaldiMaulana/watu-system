@@ -200,7 +200,9 @@
                                         <option value="QRIS">QRIS</option>
                                         <option value="Debit">Debit</option>
                                         <option value="Transfer">Transfer</option>
-                                        <option value="Credit" class="text-red-600 font-bold">Credit / Tempo</option>
+                                        <template x-if="isRoasteryCustomer()">
+                                            <option value="Credit" class="text-red-600 font-bold">Credit / Tempo</option>
+                                        </template>
                                     </select>
                                     <!-- Term Input for Credit -->
                                     <div x-show="payment.method === 'Credit'" class="mt-1">
@@ -259,9 +261,11 @@
             Alpine.data('posSystem', () => ({
                 products: {{ \Illuminate\Support\Js::from($products) }},
                 promotions: {{ \Illuminate\Support\Js::from($promotions) }},
-
+                taxes: {{ \Illuminate\Support\Js::from($taxes) }},
+                search: '',
                 customers: {{ \Illuminate\Support\Js::from($customers) }},
                 selectedCustomerId: '', 
+                selectedCategory: 'all',
                 customerName: 'Walk-in Customer', // Display name
                 taxEnabled: true,
                 discountAmount: 0,
@@ -269,7 +273,11 @@
                 isComplimentary: false,
                 notes: '',
                 transactionUuid: '', 
+
                 paymentTerm: 'net30', // Default term
+                cart: [],
+                payments: [],
+                showPaymentModal: false,
                 
                 init() {
                     // Watch selection to update Name
@@ -307,7 +315,7 @@
                 filterCategory(cat) { this.selectedCategory = cat; },
                 
                 get filteredProducts() {
-                    return this.products.filter(p => (this.selectedCategory === 'all' || p.category_id === this.selectedCategory) && p.name.toLowerCase().includes(this.search.toLowerCase()));
+                    return this.products.filter(p => (this.selectedCategory === 'all' || p.category_id == this.selectedCategory) && p.name.toLowerCase().includes(this.search.toLowerCase()));
                 },
                 
                 get subtotal() {
@@ -396,6 +404,12 @@
                             this.discountAmount = Number(promo.value);
                         }
                     }
+                },
+                
+                isRoasteryCustomer() {
+                    if (!this.selectedCustomerId) return false;
+                    const c = this.customers.find(x => x.id == this.selectedCustomerId);
+                    return c && c.type === 'roastery';
                 },
                 
                 

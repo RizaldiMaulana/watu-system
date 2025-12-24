@@ -148,7 +148,7 @@
                                                     <div class="border-t border-gray-100 my-1"></div>
 
                                                     {{-- Delete --}}
-                                                    <form action="{{ route('reservations.destroy', $res->id) }}" method="POST" onsubmit="return confirm('Hapus reservasi ini?');">
+                                                    <form action="{{ route('reservations.destroy', $res->id) }}" method="POST" data-confirm="Hapus reservasi ini?">
                                                         @csrf @method('DELETE')
                                                         <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50">Hapus</button>
                                                     </form>

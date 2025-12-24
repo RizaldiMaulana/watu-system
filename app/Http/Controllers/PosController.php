@@ -323,7 +323,9 @@ class PosController extends Controller
                     $accId = 2; // Default Kas
                     
                     if ($pay['method'] === 'Credit') {
-                        $accId = DB::table('chart_of_accounts')->where('name', 'like', '%Piutang%')->value('id') ?? 103; // Fallback ID
+                        $accId = DB::table('chart_of_accounts')->where('code', '1-103')->value('id');
+                        if (!$accId) $accId = DB::table('chart_of_accounts')->where('name', 'like', '%Piutang%')->value('id');
+                        if (!$accId) $accId = 2; // Fallback to Cash (Safe) if AR still missing, preventing Crash
                     }
 
                     DB::table('journal_details')->insert([

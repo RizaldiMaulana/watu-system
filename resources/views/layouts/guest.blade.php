@@ -27,6 +27,7 @@
                 align-items: center; 
                 justify-content: center; 
                 min-height: 100vh;
+                margin: 0;
             }
 
             .login-container {
@@ -44,13 +45,28 @@
                 padding: 3rem 2.5rem;
                 border-radius: 24px;
                 box-shadow: var(--shadow-xl);
-                animation: fadeInUp 0.8s ease;
+            .logo-section, .logo-link {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                text-decoration: none;
+                width: 100%;
+                text-align: center !important;
             }
 
             .logo-section h1 {
                 font-size: 2.2rem;
                 margin-bottom: 0.2rem;
                 color: var(--color-dark);
+                text-align: center !important;
+                width: 100%;
+            }
+
+            .subtitle {
+                text-align: center !important;
+                display: block;
+                width: 100%;
             }
 
             .login-btn {
@@ -72,10 +88,10 @@
         <div class="login-container">
             <!-- Logo Section -->
             <div class="logo-section">
-                <a href="/" class="inline-block" style="text-decoration:none;">
-                    <img src="{{ asset('images/LOGO Produk.png') }}" alt="Watu Logo" style="height: 80px; width: auto; margin-bottom: 1rem;" />
-                    <h1 class="font-serif">Watu Coffee</h1>
-                    <span class="subtitle" style="font-size: 0.8rem; letter-spacing: 3px; color: var(--color-olive); text-transform: uppercase; font-weight: 600;">Coffee & Roastery</span>
+                <a href="/" class="logo-link">
+                    <img src="{{ asset('images/LOGO Produk.png') }}" alt="Watu Logo" style="height: 80px; width: auto; margin-bottom: 1rem; display: block; margin-left: auto; margin-right: auto;" />
+                    <h1 class="font-serif" style="text-align: center; width: 100%; display: block;">Watu Coffee</h1>
+                    <span class="subtitle" style="font-size: 0.8rem; letter-spacing: 3px; color: var(--color-olive); text-transform: uppercase; font-weight: 600; text-align: center; width: 100%; display: block;">Coffee & Roastery</span>
                 </a>
             </div>
 

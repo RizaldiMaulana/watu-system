@@ -70,7 +70,7 @@
                                         </a>
 
                                         {{-- Delete --}}
-                                        <form action="{{ route('web-orders.destroy', $order->uuid) }}" method="POST" class="inline-block" onsubmit="return confirm('Batalkan pesanan ini?');">
+                                        <form action="{{ route('web-orders.destroy', $order->uuid) }}" method="POST" class="inline-block" data-confirm="Batalkan pesanan ini?">
                                             @csrf @method('DELETE')
                                             <button type="submit" class="text-red-600 hover:text-red-900" title="Batalkan">
                                                 <i class="fa fa-trash"></i>

@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watu System - Design Diagrams</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'base',
+            themeVariables: { fontSize: '20px', fontFamily: 'arial' }
+        });
+    </script>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+
+        .diagram-container {
+            background: white;
+            padding: 20px;
+            margin-bottom: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            overflow: auto;
+        }
+
+        h2 {
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 10px;
+            color: #333;
+        }
+
+        .mermaid {
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Watu System - Proposed Design Diagrams (Usulan)</h1>
+    <p>Use your browser's zoom (Ctrl + / Ctrl -) to inspect details. Diagrams are rendered as SVG.</p>
+
+    <div class="diagram-container">
+        <h2>1. BPMN Usulan (Business Process)</h2>
+        <div class="mermaid">
+            stateDiagram-v2
+            direction LR
+
+            state "Sales Process (Order to Cash)" as Sales {
+            state "Customer" as SC {
+            [*] --> BrowseMenu
+            BrowseMenu --> SelectItems
+            SelectItems --> PlaceOrder
+            PlaceOrder --> MakePayment
+            }
+
+            state "System (Watu App)" as SS {
+            PlaceOrder --> ValidateStock : Check Availability
+            ValidateStock --> AllowOrder : Stock Available
+            ValidateStock --> RejectOrder : Out of Stock
+            AllowOrder --> CreateTransaction : Status Pending
+            MakePayment --> ProcessPayment
+            ProcessPayment --> UpdateStatus : Paid
+            UpdateStatus --> IssueReceipt
+            IssueReceipt --> NotifyKitchen
+            }
+
+            state "Barista/Kitchen" as SK {
+            NotifyKitchen --> PrepareOrder
+            PrepareOrder --> ServeOrder
+            ServeOrder --> [*]
+            }
+            }
+
+            state "Procurement Process (Restock)" as Procurement {
+            state "System (DSS)" as PS {
+            [*] --> CheckLowStock : Auto/Manual Check
+            CheckLowStock --> GenerateAlert : Below Threshold
+            }
+
+            state "Manager/Admin" as PM {
+            GenerateAlert --> CreatePurchaseOrder
+            CreatePurchaseOrder --> ApprovePO
+            }
+
+            state "Supplier" as PSp {
+            ApprovePO --> ReceiveOrder
+            ReceiveOrder --> ShipGoods
+            }
+
+            state "Staff (Receiver)" as PR {
+            ShipGoods --> ReceiveGoods
+            ReceiveGoods --> InspectQuality
+            InspectQuality --> InputGoodsReceipt : Valid
+            InputGoodsReceipt --> [*]
+            }
+            }
+        </div>
+    </div>
+
+    <div class="diagram-container">
+        <h2>2. HIPO (Hierarchy)</h2>
+        <div class="mermaid">
+            graph TD
+            Level0["Watu System<br>(Main System)"]
+
+            Level1_Input["Entry Data<br>(Input)"]
+            Level1_Process["Process<br>(Activities)"]
+            Level1_Output["Output/Report<br>(Results)"]
+
+            Level0 --> Level1_Input
+            Level0 --> Level1_Process
+            Level0 --> Level1_Output
+
+            %% 1. Entry Data Modules
+            Level1_Input --> Mod_User["User Management"]
+            Level1_Input --> Mod_Prod["Product & Recipe Data"]
+            Level1_Input --> Mod_Supp["Supplier Data"]
+            Level1_Input --> Mod_Asset["Fixed Asset Data"]
+
+            %% 2. Process Modules
+            Level1_Process --> Mod_POS["POS Transaction"]
+            Level1_Process --> Mod_Order["Web Orders"]
+            Level1_Process --> Mod_Kitchen["Kitchen Production"]
+            Level1_Process --> Mod_Purch["Deep Purchasing"]
+            Level1_Process --> Mod_Journal["Journal Entries"]
+
+            %% 3. Output/Report Modules
+            Level1_Output --> Mod_Dash["Manager Dashboard"]
+            Level1_Output --> Mod_Sales["Sales Reports"]
+            Level1_Output --> Mod_Fin["Financial Statements"]
+            Level1_Output --> Mod_Receipt["Receipts & Invoices"]
+            Level1_Output --> Mod_DSS["Decision Support (DSS)"]
+        </div>
+    </div>
+
+    <div class="diagram-container">
+        <h2>3. Context Diagram</h2>
+        <div class="mermaid">
+            graph LR
+            System((Watu System))
+
+            subgraph External [External Users]
+            direction TB
+            Customer[Customer]
+            Supplier[Supplier]
+            end
+
+            subgraph Internal [Internal Staff]
+            direction TB
+            Barista[Barista / Cashier]
+            Kitchen[Kitchen Staff]
+            Manager[Manager / Owner]
+            end
+
+            %% Customer Interactions
+            Customer -- "Orders, Payments,<br>Reservations" --> System
+            System -- "Receipts,<br>Order Status" --> Customer
+
+            %% Supplier Interactions
+            Supplier -- "Invoices,<br>Delivery Notes" --> System
+            System -- "Purchase Orders,<br>Payments" --> Supplier
+
+            %% Internal Interactions
+            Barista -- "Process Payments,<br>Manage Orders" --> System
+            System -- "Order Queue,<br>Payments Info" --> Barista
+
+            Kitchen -- "Update Order<br>Status (Ready)" --> System
+            System -- "Order Details<br>(Kot)" --> Kitchen
+
+            Manager -- "Manage Menu, Reports,<br>DSS, Finance" --> System
+            System -- "Sales Reports,<br>Financials, Alerts" --> Manager
+
+            Supplier -- "Invoices, Delivery Notes" --> System
+            System -- "Purchase Orders, Payments" --> Supplier
+        </div>
+    </div>
+
+    <div class="diagram-container">
+        <h2>4. DFD Level 0</h2>
+        <div class="mermaid">
+            graph LR
+            %% Entities
+            C[Customer]
+            S[Staff/Barista]
+            K[Kitchen]
+            M[Manager]
+            Sup[Supplier]
+
+            %% Processes
+            P1((1.0 Sales &<br>Ordering))
+            P2((2.0 Inventory &<br>Procurement))
+            P3((3.0 Finance &<br>Accounting))
+            P4((4.0 Reporting &<br>DSS))
+
+            %% Data Stores
+            D1[(Orders)]
+            D2[(Products)]
+            D3[(Inventory)]
+            D4[(Financials)]
+
+            %% Flows
+            C -- Order Details --> P1
+            P1 -- Receipt/Status --> C
+            S -- Process Payment --> P1
+            P1 -- Kitchen Ticket --> K
+            K -- Order Ready --> P1
+
+            P1 -- Sales Data --> D1
+            P1 -- Deduct Stock --> D2
+
+            M -- Approve PO --> P2
+            P2 -- Purchase Order --> Sup
+            Sup -- Goods & Invoice --> P2
+            P2 -- Stock Intake --> D3
+            P2 -- Purchase Cost --> D4
+
+            M -- View Financials --> P3
+            D1 -- Revenue Data --> P3
+            D4 -- Expense Data --> P3
+            P3 -- Financial Reports --> M
+
+            D1 -- Sales History --> P4
+            D3 -- Stock Levels --> P4
+            P4 -- Low Stock Alert --> M
+            P4 -- Sales Forecast --> M
+        </div>
+    </div>
+
+    <div class="diagram-container">
+        <h2>5. DFD Level 1 (Sales)</h2>
+        <div class="mermaid">
+            graph LR
+            %% External Entities
+            C[Customer]
+            S[Barista]
+
+            %% Sub-processes
+            P1_1((1.1 Receive<br>Order))
+            P1_2((1.2 Validate<br>Stock))
+            P1_3((1.3 Process<br>Payment))
+            P1_4((1.4 Update<br>Status))
+
+            %% Data Stores
+            D_Prod[(Products)]
+            D_Trans[(Transactions)]
+
+            %% Flow
+            C --> P1_1
+            P1_1 --> P1_2
+            D_Prod -. Check Stock .-> P1_2
+            P1_2 -- Stock OK --> P1_3
+            S --> P1_3
+            P1_3 -- Payment Details --> D_Trans
+            P1_3 --> P1_4
+            P1_4 --> C
+        </div>
+    </div>
+
+    <div class="diagram-container">
+        <h2>6. DFD Level 1 (Inventory)</h2>
+        <div class="mermaid">
+            graph LR
+            %% External Entities
+            M[Manager]
+            Sup[Supplier]
+
+            %% Sub-processes
+            P2_1((2.1 Monitor<br>Stock))
+            P2_2((2.2 Create<br>Purchase Order))
+            P2_3((2.3 Receive<br>Goods))
+            P2_4((2.4 Update<br>Inventory))
+
+            %% Data Stores
+            D_Inv[(Ingredients)]
+            D_Purch[(Purchases)]
+
+            %% Flow
+            D_Inv -. Levels .-> P2_1
+            P2_1 -- Alert --> M
+            M --> P2_2
+            P2_2 -- PO --> Sup
+            P2_2 -- Save PO --> D_Purch
+            Sup --> P2_3
+            P2_3 -- Verify --> P2_4
+            P2_4 --> D_Inv
+            P2_4 -- Update Status --> D_Purch
+        </div>
+    </div>
+
+    <div class="diagram-container">
+        <h2>7. Entity Relationship Diagram (ERD)</h2>
+        <div class="mermaid">
+            %%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '20px', 'fontFamily': 'arial'}}}%%
+            erDiagram
+            %% Core Users
+            USERS ||--o{ TRANSACTIONS : "processes"
+            USERS ||--o{ PURCHASES : "approves"
+
+            %% Sales Module
+            TRANSACTIONS ||--|{ TRANSACTION_ITEMS : "contains"
+            TRANSACTIONS ||--o{ TRANSACTION_PAYMENTS : "has"
+            TRANSACTIONS }|--|| RESERVATIONS : "linked_to"
+
+            PRODUCTS ||--|{ TRANSACTION_ITEMS : "sold_as"
+            PRODUCTS }|--|| CATEGORIES : "belongs_to"
+            PRODUCTS ||--|{ RECIPES : "defined_by"
+            RECIPES }|--|| INGREDIENTS : "uses"
+
+            %% Procurement Module
+            PURCHASES }|--|| SUPPLIERS : "from"
+            PURCHASES ||--|{ PURCHASE_ITEMS : "contains"
+            PURCHASE_ITEMS }|--|| INGREDIENTS : "restocks"
+
+            %% --- ACCOUNTING MODULE (HIGHLIGHTED) ---
+            JOURNALS ||--|{ JOURNAL_DETAILS : "has"
+            JOURNAL_DETAILS }|--|| COA : "references"
+
+            FIXED_ASSETS }|--|| COA : "links_asset_acc"
+            FIXED_ASSETS }|--|| COA : "links_depr_acc"
+            FIXED_ASSETS }|--|| COA : "links_expense_acc"
+
+            %% Logical Connections (Process Flows to Accounting)
+            TRANSACTIONS ||..o{ JOURNALS : generates
+            PURCHASES ||..o{ JOURNALS : generates
+
+            %% Table Definitions
+            USERS {
+            uuid id PK
+            string name
+            string email
+            string role
+            }
+            PRODUCTS {
+            bigint id PK
+            string name
+            decimal price
+            bigint category_id FK
+            }
+            CATEGORIES {
+            bigint id PK
+            string name
+            }
+            TRANSACTIONS {
+            uuid uuid PK
+            decimal total_amount
+            string payment_status
+            string status
+            timestamp voided_at
+            }
+            TRANSACTION_ITEMS {
+            bigint id PK
+            bigint transaction_id FK
+            bigint product_id FK
+            int quantity
+            decimal unit_price
+            decimal subtotal
+            json options
+            }
+            TRANSACTION_PAYMENTS {
+            bigint id PK
+            bigint transaction_id FK
+            decimal amount
+            string method
+            }
+            RESERVATIONS {
+            uuid id PK
+            bigint transaction_id FK
+            date reservation_date
+            int table_number
+            string status
+            }
+            RECIPES {
+            bigint id PK
+            bigint product_id FK
+            bigint ingredient_id FK
+            decimal quantity_required
+            string unit
+            }
+            INGREDIENTS {
+            bigint id PK
+            string name
+            decimal stock_qty
+            string unit
+            }
+            SUPPLIERS {
+            bigint id PK
+            string name
+            string phone
+            }
+            PURCHASES {
+            bigint id PK
+            string invoice_number
+            bigint supplier_id FK
+            date transaction_date
+            decimal total_amount
+            string status
+            }
+            PURCHASE_ITEMS {
+            bigint id PK
+            bigint purchase_id FK
+            string item_name
+            int quantity
+            decimal price
+            decimal subtotal
+            }
+
+            %% Accounting Tables
+            JOURNALS {
+            bigint id PK
+            string ref_number
+            date transaction_date
+            string description
+            decimal total_debit
+            decimal total_credit
+            }
+            JOURNAL_DETAILS {
+            bigint id PK
+            bigint journal_id FK
+            bigint account_id FK
+            decimal debit
+            decimal credit
+            }
+            COA {
+            bigint id PK
+            string code
+            string name
+            enum type
+            }
+            FIXED_ASSETS {
+            uuid id PK
+            string name
+            decimal cost
+            decimal book_value
+            int useful_life_years
+            }
+
+        </div>
+    </div>
+
+</body>
+
+</html>
