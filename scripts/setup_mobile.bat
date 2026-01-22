@@ -1,4 +1,5 @@
 @echo off
+pushd "%~dp0.."
 echo ==========================================
 echo   Watu System - Mobile App Setup Script
 echo ==========================================
