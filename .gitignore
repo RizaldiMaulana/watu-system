@@ -34,3 +34,7 @@ Thumbs.db
 *.zip
 *.tar.gz
 *.rar
+
+# Ignored by cleanup
+Project Documents/Testing/
+watu_system_design_gallery.html
