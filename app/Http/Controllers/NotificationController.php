@@ -23,16 +23,16 @@ class NotificationController extends Controller
                 ];
             })
         ]);
-        ]);
     }
 
     public function check()
     {
         $user = Auth::user();
-        if (!$user) return response()->json(['count' => 0]);
+        if (!$user)
+            return response()->json(['count' => 0]);
 
         $latest = $user->unreadNotifications()->latest()->first();
-        
+
         return response()->json([
             'count' => $user->unreadNotifications()->count(),
             'latest' => $latest ? [
@@ -48,7 +48,7 @@ class NotificationController extends Controller
         $notification = Auth::user()->notifications()->find($id);
         if ($notification) {
             $notification->markAsRead();
-            
+
             // Redirect to the target URL if available
             if (isset($notification->data['url'])) {
                 return redirect($notification->data['url']);
@@ -56,7 +56,7 @@ class NotificationController extends Controller
         }
         return back();
     }
-    
+
     public function markAllRead()
     {
         Auth::user()->unreadNotifications->markAsRead();

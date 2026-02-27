@@ -16,6 +16,7 @@ use App\Http\Controllers\IngredientController;
 use App\Http\Controllers\RecipeController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\GoodsReceiptController;
+use App\Http\Controllers\LanguageController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -46,6 +47,8 @@ Route::domain(env('APP_DOMAIN_SYSTEM', null))->group(function () {
     Route::middleware(['auth', 'verified'])->group(function () {
 
         // --- AKSES UMUM (SEMUA ROLE BISA) ---
+        Route::get('/lang/{locale}', [LanguageController::class, 'switch'])->name('lang.switch');
+
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -70,7 +73,7 @@ Route::domain(env('APP_DOMAIN_SYSTEM', null))->group(function () {
 
             // Goods Receipt (Penerimaan Barang) - ALL STAFF
             Route::get('/goods-receipt', [GoodsReceiptController::class, 'index'])->name('goods-receipt.index');
-            
+
             // Manual Receipt (Input Faktur Fisik)
             Route::get('/goods-receipt/manual', [GoodsReceiptController::class, 'createManual'])->name('goods-receipt.create-manual');
             Route::post('/goods-receipt/manual', [GoodsReceiptController::class, 'storeManual'])->name('goods-receipt.store-manual');
@@ -91,12 +94,12 @@ Route::domain(env('APP_DOMAIN_SYSTEM', null))->group(function () {
         Route::middleware(['role:admin,manager,owner,roaster'])->group(function () {
             Route::resource('ingredients', IngredientController::class);
             Route::get('/laporan-stok', [ReportController::class, 'stock'])->name('reports.stock');
-            
+
             // SALES MANAGEMENT
             Route::get('/sales', [SalesController::class, 'index'])->name('sales.index');
             Route::get('/sales/{uuid}', [SalesController::class, 'show'])->name('sales.show');
             Route::post('/sales/{uuid}/void', [SalesController::class, 'void'])->name('sales.void');
-        
+
             // Data Master: Promotions & Settings
             Route::resource('promotions', PromotionController::class);
             Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
@@ -108,7 +111,7 @@ Route::domain(env('APP_DOMAIN_SYSTEM', null))->group(function () {
 
         // --- AREA STRICT MANAJEMEN (Hanya Admin, Manager, Owner) ---
         Route::middleware(['role:admin,manager,owner'])->group(function () {
-            
+
             // User Management (Admin & Owner ONLY)
             Route::middleware(['role:admin,owner'])->group(function () {
                 Route::resource('users', App\Http\Controllers\UserController::class);
@@ -123,20 +126,20 @@ Route::domain(env('APP_DOMAIN_SYSTEM', null))->group(function () {
             })->name('goods-receipt.print');
 
             Route::get('/laporan-keuangan', [ReportController::class, 'jurnal'])->name('reports.index');
-            
+
             Route::resource('products', ProductController::class);
             Route::resource('categories', CategoryController::class);
             Route::resource('suppliers', SupplierController::class);
             Route::resource('customers', App\Http\Controllers\CustomerController::class);
-            
+
             Route::get('/purchases', [PurchaseController::class, 'index'])->name('purchases.index');
             Route::get('/purchases/create', [PurchaseController::class, 'create'])->name('purchases.create');
             Route::get('/purchases/{purchase}/print', [PurchaseController::class, 'print'])->name('purchases.print');
             Route::get('/purchases/{purchase}', [PurchaseController::class, 'show'])->name('purchases.show');
-            
+
             Route::post('/purchases', [PurchaseController::class, 'store'])->name('purchases.store');
             Route::post('/purchases/{id}/pay', [PurchaseController::class, 'pay'])->name('purchases.pay');
-            
+
             // --- MODUL RESEP (BILL OF MATERIALS) --- (YANG HILANG TADI)
             Route::get('/recipes', [RecipeController::class, 'index'])->name('recipes.index');
             Route::get('/recipes/{product}/manage', [RecipeController::class, 'edit'])->name('recipes.edit');
@@ -145,7 +148,7 @@ Route::domain(env('APP_DOMAIN_SYSTEM', null))->group(function () {
 
             // --- FINANCE DASHBOARD (UNIFIED AP/AR) ---
             Route::get('/finance', [App\Http\Controllers\FinanceController::class, 'index'])->name('finance.index');
-            
+
             // --- REPORT PRINTING & EXPORT ---
             Route::get('/reports/print/{type}', [App\Http\Controllers\ReportController::class, 'print'])->name('reports.print');
 
@@ -156,13 +159,13 @@ Route::domain(env('APP_DOMAIN_SYSTEM', null))->group(function () {
 
             // --- ACCOUNTING MODULE ---
             Route::get('/accounting', [App\Http\Controllers\AccountingController::class, 'index'])->name('accounting.index');
-            
+
             // Chart of Accounts
             Route::get('/accounting/coa', [App\Http\Controllers\AccountingController::class, 'coa'])->name('accounting.coa');
             Route::post('/accounting/coa', [App\Http\Controllers\AccountingController::class, 'storeCoa'])->name('accounting.coa.store');
             Route::patch('/accounting/coa/{id}', [App\Http\Controllers\AccountingController::class, 'updateCoa'])->name('accounting.coa.update');
             Route::delete('/accounting/coa/{id}', [App\Http\Controllers\AccountingController::class, 'destroyCoa'])->name('accounting.coa.destroy');
-            
+
             // Tax Management
             Route::resource('taxes', App\Http\Controllers\TaxController::class);
 
@@ -186,6 +189,10 @@ Route::domain(env('APP_DOMAIN_SYSTEM', null))->group(function () {
             Route::get('/accounting/reports/accounts-payable', [App\Http\Controllers\AccountingController::class, 'accountsPayable'])->name('accounting.reports.accounts_payable');
         });
     });
+
+    // Help / Guide (all roles)
+    Route::get('/help', [App\Http\Controllers\HelpController::class, 'index'])->name('help.index');
+    Route::post('/onboarding/done', [App\Http\Controllers\HelpController::class, 'markOnboardingDone'])->name('onboarding.done');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Purchase extends Model
 {
     use HasFactory;
-    
+
     // Izinkan kolom ini diisi
     protected $fillable = [
         'invoice_number',
@@ -19,15 +19,14 @@ class Purchase extends Model
         'payment_method',
         'payment_term', // New
         'payment_status',
-        'status', 
+        'status',
         'proof_file',
-        'due_date',
         'due_date',
         'notes',
         'created_by',
         'signed_by',
         'signed_at',
-        'delivery_proof', // Bukti Penerimaan (Image)
+        'delivery_proof',
     ];
 
     public function creator()
@@ -43,8 +42,8 @@ class Purchase extends Model
     public function payments()
     {
         return $this->hasMany(PurchasePayment::class);
-    } 
-    
+    }
+
     // Relasi ke item
     public function items()
     {

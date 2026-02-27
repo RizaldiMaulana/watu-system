@@ -27,6 +27,7 @@ class User extends Authenticatable
         'position',
         'employee_id',
         'signature',
+        'has_seen_onboarding',
     ];
 
     /**
@@ -49,6 +50,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'has_seen_onboarding' => 'boolean',
         ];
     }
 }

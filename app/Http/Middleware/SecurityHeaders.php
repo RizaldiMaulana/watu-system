@@ -29,10 +29,20 @@ class SecurityHeaders
         // Enforce HTTPS (HSTS) - Enable this only if you have SSL
         $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
 
-        // Content Security Policy (Basic starting point)
-        // Be careful with this, as it can break styles/scripts if strict. 
-        // We'll set a permissive one for now to block mixed content at least.
-        $response->headers->set('Content-Security-Policy', "default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data:;");
+        // Content Security Policy
+        $csp = "default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data:; ";
+        $csp .= "script-src 'self' 'unsafe-inline' 'unsafe-eval' https: data:; ";
+        $csp .= "style-src 'self' 'unsafe-inline' https: data:; ";
+        $csp .= "img-src 'self' https: data: blob:; ";
+        $csp .= "font-src 'self' https: data:; ";
+        
+        // Allow Vite dev server in development
+        if (app()->environment('local', 'development')) {
+            $csp .= "script-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: http://localhost:5173 ws://localhost:5173; ";
+            $csp .= "style-src 'self' 'unsafe-inline' https: data: http://localhost:5173; ";
+        }
+        
+        $response->headers->set('Content-Security-Policy', $csp);
 
         // Referrer Policy
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
