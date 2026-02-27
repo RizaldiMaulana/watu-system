@@ -1,6 +1,17 @@
-# Watu Integrated System
+# Sistem Manajemen Kafe
 
-**Watu System** is a comprehensive Enterprise Resource Planning (ERP) and Point of Sale (POS) solution designed specifically for Coffee Shops and Roasteries. It integrates front-of-house operations with back-office accounting and inventory management to provide real-time insights into business performance.
+**Sistem Manajemen Kafe** adalah solusi ERP dan POS komprehensif yang dirancang khusus untuk bisnis kafe dan roastery. Sistem ini mengintegrasikan operasional kasir (front-of-house) dengan manajemen inventori dan akuntansi back-office untuk memberikan visibilitas bisnis secara real-time.
+
+## Branch Strategy
+
+| Branch | Fungsi |
+|---|---|
+| **`release`** | Template bersih siap deploy — tanpa branding spesifik, default environment production |
+| **`main`** | Kode terkini yang telah diuji, siap untuk deployment aktif |
+| **`test`** | Branch development aktif — tempat semua fitur baru dikerjakan |
+
+> Alur: `test` → PR → `main` → deploy. `release` diperbarui saat ada perubahan infrastruktur mayor.
+
 
 ## Key Features
 

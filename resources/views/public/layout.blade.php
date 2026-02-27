@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Watu Coffee & Roastery</title>
+    <title>{{ setting('company_name', 'Kafe Anda') }}</title>
 
     <link rel="icon" href="{{ asset('images/favicon.ico') }}" type="image/x-icon" />
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/apple-touch-icon.png') }}">
@@ -27,7 +27,7 @@
 
                 <a class="navbar-brand d-flex align-items-center" href="{{ route('home') }}">
                     <img src="{{ asset(setting('logo_website', 'images/LOGO Produk.png')) }}" alt="Logo">
-                    <span>Watu Coffee & Roastery</span>
+                    <span>{{ setting('company_name', 'Kafe Anda') }}</span>
                 </a>
 
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarWatu"

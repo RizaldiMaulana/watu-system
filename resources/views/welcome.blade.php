@@ -9,8 +9,8 @@
         <div class="container relative z-10">
             <div class="row align-items-center">
                 <div class="col-12 col-lg-6 hero-text text-center text-lg-start">
-                    <h5 class="text-olive text-uppercase font-weight-bold letter-spacing-2 mb-3">Welcome to Watu</h5>
-                    <!-- Dynamic Hero Text could be added to DB later, keeping static for now or using first slider title -->
+                    <!-- Dynamic Hero Text -->
+                <h5 class="text-olive text-uppercase font-weight-bold letter-spacing-2 mb-3">{{ setting('web_hero_welcome', 'Selamat Datang') }}</h5>
                     <h1 class="display-3 font-serif font-weight-bold mb-4">
                         {{ setting('web_hero_title', 'Experience the Perfect Roast') }}</h1>
                     <p class="lead text-muted mb-5">
